@@ -41,13 +41,13 @@ class Question(models.Model):
     page = models.IntegerField(default=0, db_index=True)
     list_order = models.IntegerField(default=0, db_index=True)
     question = models.TextField()
-    comment = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     field_type = models.CharField(max_length=255, choices=get_field_types())
     options_url = models.URLField(null=True, blank=True)
     options = models.TextField(null=True, blank=True)
     is_required = models.CharField(max_length=255, null=True, blank=True)
     is_visible = models.CharField(max_length=255, null=True, blank=True)
-    validation_rules = models.CharField(max_length=255, null=True, blank=True)
+    validation_rules = models.TextField(null=True, blank=True)
 
     @property
     def required(self):
