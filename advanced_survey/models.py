@@ -10,7 +10,7 @@ def get_field_types():
         ('LineEdit', 'Line Edit'),
         ('TextArea', 'Text Area'),
         ('Select', 'Select'),
-        ('Checkbox', 'Checkbix'),
+        ('Checkbox', 'Checkbox'),
         ('Radiobox', 'Radiobox'),
         ('Email', 'Email'),
         ('URL', 'URL'),
@@ -66,6 +66,8 @@ class Question(models.Model):
     @property
     def rules(self):
         """rules computed field"""
+        if self.validation_rules is None:
+            return None
         return self.validation_rules.split("|")
 
     def __str__(self):
