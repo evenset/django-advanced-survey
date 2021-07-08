@@ -1,8 +1,11 @@
 """Models"""
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 def get_field_types():
+    """Field Types Helper"""
     return (
         ('LineEdit', 'Line Edit'),
         ('TextArea', 'Text Area'),
@@ -22,15 +25,18 @@ def get_field_types():
     )
 
 class Survey(models.Model):
+    """Survey Model"""
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expire_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
+        """String representation of the model"""
         return self.name
 
 class Question(models.Model):
+    """Question model"""
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, db_index=True)
     page = models.IntegerField(default=0, db_index=True)
     list_order = models.IntegerField(default=0, db_index=True)
@@ -45,30 +51,36 @@ class Question(models.Model):
 
     @property
     def required(self):
+        """required computed field"""
         if self.is_required is None:
             return False
         return self.is_required.split("|")
 
     @property
     def visible(self):
+        """visible computed field"""
         if self.is_visible is None:
             return True
         return self.is_visible.split("|")
 
     @property
     def rules(self):
+        """rules computed field"""
         return self.validation_rules.split("|")
 
     def __str__(self):
+        """String representation of the model"""
         return self.question
 
 class Answer(models.Model):
+    """Answer model"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, db_index=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True)
     answer = models.TextField()
     session = models.CharField(max_length=255, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
+        """String representation of the model"""
         return self.answer
