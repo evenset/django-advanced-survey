@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-3-feature/DHP-4-add-models-to-admin
+- Survey and Answer models added to the admin
+
 ## 0.0.1-dev-3-feature/DHP-3-models-mogrations
 - Models and migrations added
 
