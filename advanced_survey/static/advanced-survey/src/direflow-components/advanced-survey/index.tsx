@@ -8,12 +8,13 @@ export default DireflowComponent.create({
   },
   plugins: [
     {
-      name: 'font-loader',
+      name: 'external-loader',
       options: {
-        google: {
-          families: ['Advent Pro', 'Noto Sans JP'],
-        },
-      },
+        paths: [
+          'https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css',
+          'https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js'
+        ],
+      }
     },
   ],
 });
