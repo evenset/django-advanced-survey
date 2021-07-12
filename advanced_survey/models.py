@@ -76,7 +76,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
     """Answer model"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True, null=True, blank=True)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, db_index=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True)
     answer = models.TextField()
