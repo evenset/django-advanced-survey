@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.1-dev-5-feature/DHP-5-6-direflow-admin
+- Direflow app created
+- Edit survey admin page edited
+
 ## 0.0.1-dev-4-feature/DHP-4-add-models-to-admin
 - Survey and Answer models added to the admin
 
