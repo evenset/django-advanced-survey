@@ -19,12 +19,14 @@ enum FieldType {
 }
 
 interface IProps {
+    field?: string;
+    option?: any;
     OnFieldSet: (options: any) => void;
 }
 
-const FieldSelector: FC<IProps> = ({OnFieldSet}) => {
-    const [fieldtype, setFieldtype] = useState<string>();
-    const [options, setOptions] = useState<any>({});
+const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
+    const [fieldtype, setFieldtype] = useState<string>(field);
+    const [options, setOptions] = useState<any>(option);
 
     const setOption = (property: string, value: any) => {
         setOptions((old: any) => {
