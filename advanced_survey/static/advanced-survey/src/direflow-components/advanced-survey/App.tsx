@@ -1,7 +1,7 @@
 import React, { FC, useReducer } from 'react';
 
 import {StateContext, reducer, initialState} from '../state';
-import PageManager from '../page-manager/index';
+import FieldSelector from '../field-selector';
 
 const App: FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -10,7 +10,7 @@ const App: FC = () => {
     <StateContext.Provider value={{state, dispatch}}>
       <div className="row">
         <div className="col-lg-12">
-          <PageManager />
+          <FieldSelector OnFieldSet={options => console.log(options)} />
         </div>
       </div>
     </StateContext.Provider>
