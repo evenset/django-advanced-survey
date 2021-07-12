@@ -6,6 +6,8 @@ from .models import Survey, Answer
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
     """SurveyAdmin"""
+    add_form_template = "add_form.html"
+    change_form_template = "change_form.html"
     list_display = ('name', 'created_at', 'expire_at')
 
 @admin.register(Answer)
