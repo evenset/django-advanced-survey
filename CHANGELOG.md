@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.1-dev-6-feature/DHP-9-page-manager
+- State manager with context added.
+- Page manager component added.
+
 ## 0.0.1-dev-5-feature/DHP-5-6-direflow-admin
 - Direflow app created
 - Edit survey admin page edited

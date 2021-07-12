@@ -1,16 +1,19 @@
-import React, { FC } from 'react';
-import { Styled } from 'direflow-component';
-import styles from './App.css';
+import React, { FC, useReducer } from 'react';
 
-const App: FC = (props) => {
+import {StateContext, reducer, initialState} from '../state';
+import PageManager from '../page-manager/index';
+
+const App: FC = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   return (
-    <Styled styles={styles}>
+    <StateContext.Provider value={{state, dispatch}}>
       <div className="row">
         <div className="col-lg-12">
-          <h1>Works!</h1>
+          <PageManager />
         </div>
       </div>
-    </Styled>
+    </StateContext.Provider>
   );
 };
 
