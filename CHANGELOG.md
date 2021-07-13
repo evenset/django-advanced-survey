@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-7-feature/DHP-8-field-types
+- Field type component added
+
 ## 0.0.1-dev-6-feature/DHP-9-page-manager
 - State manager with context added.
 - Page manager component added.
