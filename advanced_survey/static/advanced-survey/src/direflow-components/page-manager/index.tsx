@@ -34,7 +34,7 @@ const PageManager: FC<IProps> = ({OnDeletePage}) => {
                                         height: '22px',
                                         width: '22px'
                                     }}>
-                                        X
+                                        
                                 </button>
                             }
                         </a>
