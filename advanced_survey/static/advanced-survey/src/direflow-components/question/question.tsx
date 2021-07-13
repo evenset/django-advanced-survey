@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, ChangeEvent} from 'react';
 import './question.css';
 
 type Props = {
@@ -12,9 +12,9 @@ const Question: React.FC<Props> = (props: Props) => {
   const [description, setDescription] = useState<string>(props.description || '');
   const [questionType, setQuestionType] = useState<string>('LineEdit')
 
-  const handleTitleChange = useCallback(((evt: React.ChangeEvent<HTMLInputElement>) => setTitle(evt.target.value)), [])
-  const handleDescChange = useCallback(((evt: React.ChangeEvent<HTMLInputElement>) => setDescription(evt.target.value)), [])
-  const handleTypeChange = useCallback(((evt: React.ChangeEvent<HTMLInputElement>) => setQuestionType(evt.target.value)), [])
+  const handleTitleChange = useCallback(((evt: ChangeEvent<HTMLInputElement>) => setTitle(evt.target.value)), [])
+  const handleDescChange = useCallback(((evt: ChangeEvent<HTMLTextAreaElement>) => setDescription(evt.target.value)), [])
+  const handleTypeChange = useCallback(((evt: ChangeEvent<HTMLSelectElement>) => setQuestionType(evt.target.value)), [])
 
   const placeholder = props.placeholder || 'Description...'
   const ordinal = props.ordinal ? `${props.ordinal}.` : ''
