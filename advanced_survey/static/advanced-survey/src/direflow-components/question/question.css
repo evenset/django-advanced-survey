@@ -1,0 +1,75 @@
+.card {
+    background-color: white;
+    border-radius: 32px;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.question-name {
+    display: flex;
+}
+
+.question-name .ordinal {
+    color: black;
+    font-size: larger;
+    margin-right: 6px;
+}
+
+.question-name input {
+    flex: 1;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px dashed grey;
+    background-color: white;
+    font-size: larger;
+}
+
+.question-name input:focus {
+    outline: none;
+    background-color: lightgrey;
+}
+.question-name input:hover {
+    background-color: lightgrey;
+}
+
+.question-name input::placeholder {
+    color: grey;
+}
+
+.question-description {
+    display: flex;
+    flex-direction: row;
+    margin-top: 32px;
+}
+
+.question-description textarea {
+    flex: 1;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px dashed grey;
+    background-color: white;
+    font-size: large;
+    font-family: sans-serif;
+    margin-right: 12px;
+}
+
+.question-description textarea:focus {
+    outline: none;
+    background-color: lightgrey;
+}
+.question-description textarea:hover {
+    background-color: lightgrey;
+}
+
+.question-description textarea::placeholder {
+    color: grey;
+}
+
+.question-description select {
+    color: grey;
+    align-self: flex-start;
+}
