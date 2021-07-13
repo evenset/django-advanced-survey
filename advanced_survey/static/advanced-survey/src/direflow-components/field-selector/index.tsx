@@ -77,6 +77,10 @@ const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
                         <label>Choices:</label>
                         <textarea className="form-control" onChange={e => setOption("choices", e.target.value)}></textarea>
                     </div>
+                    <div className="form-group">
+                        <label>Choices URL:</label>
+                        <input type="url" className="form-control" onChange={e => setOption("url", e.target.value)} />
+                    </div>
                 </>
             }
             {fieldtype === "Checkbox" &&
@@ -93,6 +97,10 @@ const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
                         <label>Choices:</label>
                         <textarea className="form-control" onChange={e => setOption("choices", e.target.value)}></textarea>
                     </div>
+                    <div className="form-group">
+                        <label>Choices URL:</label>
+                        <input type="url" className="form-control" onChange={e => setOption("url", e.target.value)} />
+                    </div>
                 </>
             }
             {fieldtype === "Radiobox" &&
@@ -100,6 +108,10 @@ const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
                     <div className="form-group">
                         <label>Choices:</label>
                         <textarea className="form-control" onChange={e => setOption("choices", e.target.value)}></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Choices URL:</label>
+                        <input type="url" className="form-control" onChange={e => setOption("url", e.target.value)} />
                     </div>
                 </>
             }
@@ -184,6 +196,10 @@ const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
                     <div className="form-group">
                         <label>Items:</label>
                         <textarea className="form-control" onChange={e => setOption("items", e.target.value)}></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Items URL:</label>
+                        <input type="url" className="form-control" onChange={e => setOption("url", e.target.value)} />
                     </div>
                 </>
             }
