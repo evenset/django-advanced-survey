@@ -32,20 +32,32 @@ const makeID = (length: number) => {
 export const reducer = (state: any, action: any) => {
     const current_page = state.pages[state.activePage - 1];
     switch (action.type) {
+        case 'setPages':
+            if (action.payload.length === 0) {
+                action.payload = [[]];
+            }
+            return {...state, pages: action.payload};
         case 'addPage':
             return { ...state, pages: [...state.pages, []], activePage: state.activePage + 1 };
         case 'setActivePage':
             return { ...state, activePage: action.payload };
         case 'removePage':
             const pages = [...state.pages];
-            pages.splice(action.payload, 1);
+            if (pages[action.payload].length === 0) {
+                pages.splice(action.payload, 1);
+            } else {
+                pages[action.payload].map((question: any) => {
+                    question.delete = true;
+                    return question;
+                })
+            }
             return { ...state, pages, activePage: state.activePage - 1 }
         case 'addQuestion':
-            current_page.push({ id: makeID(12), list_order: current_page.length })
+            current_page.push({ id: makeID(12), list_order: current_page.length, field: 'LineEdit' })
             sortByListOrder(current_page);
             return { ...state }
         case 'deleteQuestion':
-            current_page.splice(action.payload, 1);
+            current_page[action.payload].delete = true;
             sortByListOrder(current_page);
             return { ...state }
         case 'updateQuestion':
@@ -67,6 +79,7 @@ export const reducer = (state: any, action: any) => {
 }
 
 export const StateContext = React.createContext({
+    props: {},
     state: initialState,
-    dispatch: (param: { type: string, payload?: any }) => { }
+    dispatch: (param: { type: string, payload?: any }) => {},
 });
