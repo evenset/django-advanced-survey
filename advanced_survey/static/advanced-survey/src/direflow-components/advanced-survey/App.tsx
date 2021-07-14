@@ -43,7 +43,8 @@ const App: FC = (props: any) => {
         url: `${document.location.origin}${props.save_url}?id=${props.id}`,
         data: state.pages
       })
-      console.log(data);
+      dispatch({type: "setPages", payload: data})
+      setSaveError('Saved successfully');
     } catch (err) {
       setSaveError(err.message);
     } finally {
@@ -72,7 +73,12 @@ const App: FC = (props: any) => {
               return (<Question key={question.id} question={question} index={index} />);
             })}
 
-            {saveError && <div className="alert alert-warning my-1">{saveError}</div>}
+            {saveError && 
+              <div className="alert alert-warning alert-dismissible fade show my-1" role="alert">
+                {saveError}
+                <button onClick={e => setSaveError('')} type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            }
 
             <button className="btn btn-primary mb-2 mt-1" disabled={saveLoading} onClick={() => saveQuestions()}>{saveLoading ? 'Saving...' : 'Save Questions'}</button>
 
