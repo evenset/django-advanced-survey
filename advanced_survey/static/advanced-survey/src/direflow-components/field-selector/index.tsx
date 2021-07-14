@@ -1,4 +1,5 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useEffect, useContext } from 'react';
+import { StateContext } from '../state';
 
 enum FieldType {
     LineEdit,
@@ -19,14 +20,14 @@ enum FieldType {
 }
 
 interface IProps {
-    field?: string;
-    option?: any;
-    OnFieldSet: (options: any) => void;
+    index: number;
+    question: any;
 }
 
-const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
-    const [fieldtype, setFieldtype] = useState<string>(field);
-    const [options, setOptions] = useState<any>(option);
+const FieldSelector: FC<IProps> = ({index, question}) => {
+    const [fieldtype, setFieldtype] = useState<string>(question.field);
+    const [options, setOptions] = useState<any>(question.option);
+    const {dispatch} = useContext(StateContext);
 
     const setOption = (property: string, value: any) => {
         setOptions((old: any) => {
@@ -35,8 +36,11 @@ const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
     }
 
     useEffect(() => {
-        OnFieldSet({fieldtype, options})
-    }, [options, OnFieldSet, fieldtype])
+        dispatch({type: 'updateQuestion', payload: {
+            id: index,
+            question: {...question, option: options, field: fieldtype}
+        }})
+    }, [options, dispatch, fieldtype])
 
     return (
         <>
