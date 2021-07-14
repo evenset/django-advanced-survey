@@ -1,11 +1,7 @@
 import React, { FC, useContext } from 'react';
 import {StateContext} from '../state';
 
-interface IProps {
-    OnDeletePage?: (page: number) => void;
-}
-
-const PageManager: FC<IProps> = ({OnDeletePage}) => {
+const PageManager: FC = () => {
     const {state, dispatch} = useContext(StateContext);
 
     const AddPage = (event: React.MouseEvent) => {
@@ -15,7 +11,7 @@ const PageManager: FC<IProps> = ({OnDeletePage}) => {
 
     return (
         <ul className="nav nav-tabs">
-            {new Array(state.pages).fill(0).map((_, page) => {
+            {state.pages.map((_, page) => {
                 const activeClass = page + 1 === state.activePage;
                 return (
                     <li className="nav-item" key={page} onClick={() => {
@@ -23,9 +19,13 @@ const PageManager: FC<IProps> = ({OnDeletePage}) => {
                     }}>
                         <a className={`nav-link ${activeClass ? 'active' : ''}`} href="#">
                             Page {page + 1}
-                            {activeClass &&
+                            {activeClass && page > 0 &&
                                 <button 
-                                    onDoubleClick={() => OnDeletePage && OnDeletePage(page + 1)}
+                                    onDoubleClick={() => {
+                                        if (page > 0) {
+                                            dispatch({type: "removePage", payload: page});
+                                        }
+                                    }}
                                     title="double click to delete"
                                     className="btn btn-sm btn-outline-danger"
                                     style={{

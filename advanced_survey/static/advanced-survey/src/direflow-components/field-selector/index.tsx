@@ -36,7 +36,7 @@ const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
 
     useEffect(() => {
         OnFieldSet({fieldtype, options})
-    }, [options, OnFieldSet])
+    }, [options, OnFieldSet, fieldtype])
 
     return (
         <>
@@ -47,7 +47,7 @@ const FieldSelector: FC<IProps> = ({OnFieldSet, field = "", option = {}}) => {
                     setOptions({});
                 }}>
                     {Object.keys(FieldType).map((key: string) => {
-                        if (isNaN(parseInt(key))) return;
+                        if (isNaN(parseInt(key))) return null;
                         return <option key={key}>{FieldType[parseInt(key)]}</option>
                     })}
                 </select>
