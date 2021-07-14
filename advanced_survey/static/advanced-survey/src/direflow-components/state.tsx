@@ -18,7 +18,20 @@ export const sortByListOrder = (arr: any[]) => {
     })
 }
 
+const makeID = (length: number) => {
+    let result           = '';
+    const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * 
+ charactersLength));
+   }
+   return result;
+}
+
+
 export const reducer = (state: any, action: any) => {
+    const current_page = state.pages[state.activePage - 1];
     switch (action.type) {
         case 'addPage':
             return {...state, pages: [...state.pages, []], activePage: state.activePage + 1};
@@ -29,20 +42,24 @@ export const reducer = (state: any, action: any) => {
             pages.splice(action.payload, 1);
             return {...state, pages, activePage: state.activePage - 1}
         case 'addQuestion':
-            state.pages[state.activePage - 1].push({list_order: state.pages[state.activePage - 1].length})
-            sortByListOrder(state.pages[state.activePage - 1]);
+            current_page.push({id: makeID(12), list_order: current_page.length})
+            sortByListOrder(current_page);
             return {...state}
         case 'deleteQuestion':
-            state.pages[state.activePage - 1].splice(action.payload, 1);
-            sortByListOrder(state.pages[state.activePage - 1]);
+            current_page.splice(action.payload, 1);
+            sortByListOrder(current_page);
+            return {...state}
+        case 'updateQuestion':
+            current_page[action.payload.id] = action.payload.question
             return {...state}
         case 'dragStart':
             return {...state, drag: action.payload}
         case 'dropEnd':
             if (state.drag !== action.payload) {
-                state.pages[state.activePage - 1][state.drag].list_order = action.payload;
-                state.pages[state.activePage - 1][action.payload].list_order = state.drag;
-                sortByListOrder(state.pages[state.activePage - 1])
+                const temp = {...current_page[state.drag], list_order: action.payload}
+                current_page[state.drag] = {...current_page[action.payload], list_order: state.drag}
+                current_page[action.payload] = temp;
+                sortByListOrder(current_page)
             }
             return {...state, drag: -1};
         default:
