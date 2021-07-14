@@ -12,9 +12,20 @@ const Question: React.FC<Props> = (props: Props) => {
   const question: any = state.pages[state.activePage - 1][props.index];
 
   return (
-    <div className="card my-1">
+    <div
+      className="card my-2 bg-light"
+      draggable={true}
+      onDragStart={e => {
+        dispatch({type: "dragStart", payload: props.index})
+      }}
+      onDragOver={e => e.preventDefault()}
+      onDrop={e => {
+        e.preventDefault();
+        dispatch({type: 'dropEnd', payload: props.index});
+      }}
+    >
       <div className="card-header card-header d-flex align-items-center justify-content-around">
-        Question {props.index}
+        Question {props.index + 1}
         <button 
           className="btn btn-sm btn-outline-danger"
           title="double click to delete"
