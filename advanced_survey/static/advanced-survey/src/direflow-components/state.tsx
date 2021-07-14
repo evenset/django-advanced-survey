@@ -6,7 +6,7 @@ export const initialState = {
     drag: -1
 };
 
-const sortByListOrder = (arr: any[]) => {
+export const sortByListOrder = (arr: any[]) => {
     arr.sort((a: any, b: any) => {
         if ( a.list_order < b.list_order ){
             return -1;
@@ -46,7 +46,7 @@ export const reducer = (state: any, action: any) => {
             }
             return {...state, drag: -1};
         default:
-            throw new Error();
+            throw new Error("Invalid Action");
     }
 }
 
