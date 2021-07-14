@@ -11,13 +11,21 @@ const PageManager: FC = () => {
 
     return (
         <ul className="nav nav-tabs">
-            {state.pages.map((_, page) => {
+            {state.pages.map((questions, page) => {
                 const activeClass = page + 1 === state.activePage;
+                const deleted = page > 0 && questions.length > 0 && questions.every((question: any) => question.delete === true);
+                if (deleted) {
+                    return <li className="nav-item" key={page}>
+                        <a className="nav-link" href="#" onClick={e => e.preventDefault()}>
+                            Page {page + 1} <span className="badge rounded-pill bg-danger">DELETED</span>
+                        </a>
+                    </li>
+                }
                 return (
                     <li className="nav-item" key={page} onClick={() => {
                         dispatch({type: 'setActivePage', payload: page + 1})
                     }}>
-                        <a className={`nav-link ${activeClass ? 'active' : ''}`} href="#">
+                        <a className={`nav-link ${activeClass ? 'active' : ''}`} href="#" onClick={e => e.preventDefault()}>
                             Page {page + 1}
                             {activeClass && page > 0 &&
                                 <button 

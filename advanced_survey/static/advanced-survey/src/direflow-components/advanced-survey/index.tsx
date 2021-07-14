@@ -6,6 +6,10 @@ export default DireflowComponent.create({
   configuration: {
     tagname: 'advanced-survey',
   },
+  properties: {
+    id: 0,
+    save_url: '',
+  },
   plugins: [
     {
       name: 'external-loader',
