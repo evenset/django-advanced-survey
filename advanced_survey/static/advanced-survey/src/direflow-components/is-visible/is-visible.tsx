@@ -6,7 +6,7 @@ type Props = {
 }
 const inline = {display: "inline"}
 const VisibleSelector: React.FC<Props> = () => {
-  const {state, dispatch} = useContext
+  const {state, dispatch} = useContext(StateContext)
   return (
     <span style={inline}>
       visible <select className="form-control" style={inline}>
