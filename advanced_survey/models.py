@@ -37,7 +37,7 @@ class Survey(models.Model):
         """String representation of the model"""
         return self.name
 
-class Question(models.Model):
+class Question(models.Model): # pylint: disable=R0902
     """Question model"""
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, db_index=True)
     page = models.IntegerField(default=0, db_index=True)
