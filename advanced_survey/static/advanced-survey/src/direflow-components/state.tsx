@@ -27,18 +27,19 @@ const makeID = (length: number) => {
     }
     return result;
 }
+
+type Question = {
+    list_order: number;
+    visibleIf: string[];
+    id: string;
+    title: string;
+    description: string;
+    option: {
+        choices?: string | undefined;
+    };
+};
 type SurveyState = {
-    pages: {
-        list_order: number;
-        //TODO: stricter
-        visibleIf: string[];
-        id: string;
-        title: string;
-        description: string;
-        option?: {
-          choices?: string;
-        };
-    }[][];
+    pages: Question[][];
     drag: number;
     activePage: number;
 }
