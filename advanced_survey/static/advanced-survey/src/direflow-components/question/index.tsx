@@ -39,9 +39,9 @@ const Question: React.FC<Props> = ({index, question}) => {
           <textarea className="form-control" onChange={e => {
             dispatch({type: 'updateQuestion', payload: {
               id: index,
-              question: {...question, question: e.target.value}
+              question: {...question, title: e.target.value}
             }})
-          }}>{question.question}</textarea>
+          }}>{question.title}</textarea>
         </div>
         <div className="form-group">
           <label>Description:</label>

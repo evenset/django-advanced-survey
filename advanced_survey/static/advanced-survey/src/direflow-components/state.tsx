@@ -35,6 +35,9 @@ type SurveyState = {
         id: string;
         title: string;
         description: string;
+        option?: {
+          choices?: string;
+        };
     }[][];
     drag: number;
     activePage: number;
@@ -51,7 +54,7 @@ export const reducer = (state: SurveyState, action: any) => {
             pages.splice(action.payload, 1);
             return { ...state, pages, activePage: state.activePage - 1 }
         case 'addQuestion':
-            current_page.push({ id: makeID(12), list_order: current_page.length, visibleIf: ['always'], title: '', description: '' })
+            current_page.push({ id: makeID(12), list_order: current_page.length, visibleIf: ['always'], title: '', description: '', option: {}})
             sortByListOrder(current_page);
             return { ...state }
         case 'deleteQuestion':
