@@ -7,5 +7,5 @@
 {% endblock %}
 
 {% block after_field_sets %}
-<advanced-survey></advanced-survey>
+    <advanced-survey id={{ original.id }} save_url="{% url 'advanced_survey_save_url' %}"></advanced-survey>
 {% endblock %}
