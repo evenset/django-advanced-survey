@@ -102,7 +102,7 @@ const VisibleSelector: React.FC<Props> = (props: Props) => {
         {(conditionType !== 'always') && <select className="form-control" value={otherQuestionId} onChange={updateOtherQuestion}>
             {!otherQuestionId && <option value="">Select a question...</option>}
             {
-              previousQuestions.map(q => <option key={q.id} value={q.id}>{q.title}</option>)
+              previousQuestions.map(q => <option key={q.id} value={q.id}>{q.question}</option>)
             }
         </select>}
       </div>

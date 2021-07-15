@@ -1,5 +1,5 @@
 import React from 'react';
-
+import {Question, FieldType} from './types'
 export const initialState = {
     pages: [[]],
     activePage: 1,
@@ -28,22 +28,14 @@ const makeID = (length: number) => {
     return result;
 }
 
-type Question = {
-    list_order: number;
-    visibleIf: string[];
-    id: string;
-    title: string;
-    description: string;
-    option: {
-        choices?: string | undefined;
-    };
-};
+
 type SurveyState = {
     pages: Question[][];
     drag: number;
     activePage: number;
 }
 export const reducer = (state: SurveyState, action: any) => {
+    console.log(action)
     const current_page = state.pages[state.activePage - 1];
     switch (action.type) {
         case 'setPages':
@@ -67,7 +59,7 @@ export const reducer = (state: SurveyState, action: any) => {
             }
             return { ...state, pages, activePage: state.activePage - 1 }
         case 'addQuestion':
-            current_page.push({ id: makeID(12), list_order: current_page.length, field: 'LineEdit', visibleIf: ['always'], title: '', description: '', option: {}})
+            current_page.push({ id: makeID(12), list_order: current_page.length, field: FieldType.LineEdit, visibleIf: ['always'], question: '', description: '', option: {}})
             sortByListOrder(current_page);
             return { ...state }
         case 'deleteQuestion':

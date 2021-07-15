@@ -1,23 +1,6 @@
 import React, { FC, useState, useEffect, useContext } from 'react';
 import { StateContext } from '../state';
-
-enum FieldType {
-    LineEdit,
-    TextArea,
-    Select,
-    Checkbox,
-    Radiobox,
-    Email,
-    URL,
-    Phone,
-    Boolean,
-    Numeric,
-    File,
-    Image,
-    Date,
-    Time,
-    Rating
-}
+import {FieldType} from '../types';
 
 interface IProps {
     index: number;

@@ -19,7 +19,8 @@ const App: FC = (props: any) => {
       method: 'GET',
       url: `${document.location.origin}${props.save_url}?id=${props.id}`
     }).then(({data}) => {
-      dispatch({type: "setPages", payload: data})
+      // TODO: not sure how this was meant to work but it sets raw text as the pages state
+      // dispatch({type: "setPages", payload: data})
     }).catch(err => {
       setError(err.message);
     }).finally(() => {
