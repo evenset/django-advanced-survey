@@ -1,7 +1,24 @@
 """Views"""
 import json
+from datetime import datetime
+
 from django.http import JsonResponse
+from django.db.models import Q
+
 from .models import Survey, Question
+
+def serialize_question(question):
+    """Serialize Question"""
+    return {
+        "id": question.id,
+        "list_order": question.list_order,
+        "question": question.question,
+        "description": question.description,
+        "field": question.field_type,
+        "url": question.options_url,
+        "options": {} if question.options is None \
+                    else json.loads(question.options.replace("'", "\""))
+    }
 
 def save_survey(request): # pylint: disable=R0912
     """Save Survey"""
@@ -12,10 +29,9 @@ def save_survey(request): # pylint: disable=R0912
         return JsonResponse({"data":"Empty Survey ID"}, status=406)
 
     # pylint: disable=W0622
-    question_id = int(request.GET['id'])
-    survey = Survey.objects.filter(id=question_id).first()
+    survey = Survey.objects.filter(id=request.GET['id']).first()
     if survey is None:
-        return JsonResponse({"data":f"Survey with ID {question_id} not found"}, status=404)
+        return JsonResponse({"data":f"Survey with ID {request.GET['id']} not found"}, status=404)
 
     if request.method == 'POST':
         pages = json.loads(request.body)
@@ -57,18 +73,42 @@ def save_survey(request): # pylint: disable=R0912
 
     pages = {}
     for question in survey.question_set.order_by('list_order', 'page').all():
-        question_serialized = {
-            "id": question.id,
-            "list_order": question.list_order,
-            "question": question.question,
-            "description": question.description,
-            "field": question.field_type,
-            "url": question.options_url,
-            "options": {} if question.options is None else json.loads(question.options.replace("'", "\""))
-        }
+        question_serialized = serialize_question(question)
         if question.page in pages:
             pages[question.page].append(question_serialized)
         else:
             pages[question.page] = [question_serialized]
 
     return JsonResponse(list(pages.values()), safe=False)
+
+def get_survey(request):
+    """Get Survey(s) by id (optional)"""
+    surveys = Survey.objects.filter(Q(expire_at__isnull=True) | Q(expire_at__lt=datetime.today()))
+
+    if 'id' in request.GET:
+        surveys = surveys.filter(id=request.GET['id']).first()
+        if surveys is None:
+            return JsonResponse(
+                {"data":f"Survey with ID {request.GET['id']} not found"},
+                status=404
+            )
+
+    result = []
+    for surveydb in surveys:
+        survey = {
+            "id": surveydb.id,
+            "name": surveydb.name,
+            "description": surveydb.description,
+            "expire_at": surveydb.expire_at
+        }
+        pages = {}
+        for question in surveydb.question_set.order_by('list_order', 'page'):
+            question_serialized = serialize_question(question)
+            if question.page in pages:
+                pages[question.page].append(question_serialized)
+            else:
+                pages[question.page] = [question_serialized]
+        survey["pages"] = list(pages.values())
+        result.append(survey)
+
+    return JsonResponse(result, safe=False)

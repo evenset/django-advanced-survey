@@ -1,4 +1,5 @@
 """Models"""
+import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -26,6 +27,7 @@ def get_field_types():
 
 class Survey(models.Model):
     """Survey Model"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -47,7 +49,6 @@ class Question(models.Model):
     options = models.TextField(null=True, blank=True)
     is_required = models.CharField(max_length=255, null=True, blank=True)
     is_visible = models.CharField(max_length=255, null=True, blank=True)
-    validation_rules = models.TextField(null=True, blank=True)
 
     @property
     def required(self):
@@ -62,13 +63,6 @@ class Question(models.Model):
         if self.is_visible is None:
             return True
         return self.is_visible.split("|")
-
-    @property
-    def rules(self):
-        """rules computed field"""
-        if self.validation_rules is None:
-            return None
-        return self.validation_rules.split("|")
 
     def __str__(self):
         """String representation of the model"""
