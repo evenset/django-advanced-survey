@@ -53,7 +53,7 @@ const Question: React.FC<Props> = ({index, question}) => {
           }}>{question.description}</textarea>
         </div>
         <FieldSelector key={question.id} question={question} index={index} />
-        <IsVisible questionId={question.id} />
+        <IsVisible questionId={question.id}/>
       </div>
     </div>
   )

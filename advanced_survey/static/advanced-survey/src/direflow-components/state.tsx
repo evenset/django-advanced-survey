@@ -35,7 +35,7 @@ type SurveyState = {
     activePage: number;
 }
 export const reducer = (state: SurveyState, action: any) => {
-    console.log(action)
+    // console.log(action)
     const current_page = state.pages[state.activePage - 1];
     switch (action.type) {
         case 'setPages':

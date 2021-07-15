@@ -6,21 +6,24 @@ type Props = {
 const VisibleSelector: React.FC<Props> = (props: Props) => {
   const questionId = props.questionId
   const {state, dispatch} = useContext(StateContext)
-  const flatQuestions = state.pages.flat()
-  const previousQuestions: typeof flatQuestions = []
+  const page = state.pages[state.activePage - 1]
+  const previousQuestions: typeof page = []
   let selectedQuestion: null | typeof previousQuestions[0] = null
-  for (const question of flatQuestions) {
+  let questionIdx = 0;
+
+  // need to filter out deleted but they still affect the index
+  for (const question of page) {
     if (question.id === questionId) {
       selectedQuestion = question
       break
     }
+    questionIdx ++
+    if (question.delete) continue
     previousQuestions.push(question)
   }
-  if (!selectedQuestion) {
-    throw Error('Selected a nonexistent question')
+  if (!selectedQuestion || selectedQuestion.delete) {
+    throw Error('Selected a nonexistent or deleted question')
   }
-
-  const questionIdx = previousQuestions.length
 
   const update = useCallback((visibleIf: string[]) =>
     {
@@ -63,7 +66,6 @@ const VisibleSelector: React.FC<Props> = (props: Props) => {
       [conditionType, otherQuestionId, condition, update]
     ),
   ]
-
   useEffect(() => {
     if (!otherQuestionId) return
     if (previousQuestions.find(({id}) => id === otherQuestionId)) return
