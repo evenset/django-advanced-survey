@@ -34,7 +34,7 @@ const Question: React.FC<Props> = ({index, question}) => {
         </button>
       </div>
       <div className="card-body">
-        <div className="form-group">
+        <div className="form-group mb-2">
           <label>Question:</label>
           <textarea className="form-control" onChange={e => {
             dispatch({type: 'updateQuestion', payload: {
@@ -43,7 +43,7 @@ const Question: React.FC<Props> = ({index, question}) => {
             }})
           }}>{question.title}</textarea>
         </div>
-        <div className="form-group">
+        <div className="form-group mb-2">
           <label>Description:</label>
           <textarea className="form-control" onChange={e => {
             dispatch({type: 'updateQuestion', payload: {
@@ -52,7 +52,7 @@ const Question: React.FC<Props> = ({index, question}) => {
             }})
           }}>{question.description}</textarea>
         </div>
-        <FieldSelector question={question} index={index} />
+        <FieldSelector key={question.id} question={question} index={index} />
         <IsVisible questionId={question.id} />
       </div>
     </div>
