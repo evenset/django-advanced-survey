@@ -2,10 +2,11 @@ import React, {useContext} from 'react';
 
 import { StateContext } from '../state';
 import FieldSelector from '../field-selector';
+import IsVisible from '../is-visible';
 
 type Props = {
-  index: number,
-  question: any
+  index: number;
+  question: any;
 }
 
 const Question: React.FC<Props> = ({index, question}) => {
@@ -52,6 +53,7 @@ const Question: React.FC<Props> = ({index, question}) => {
           }}>{question.description}</textarea>
         </div>
         <FieldSelector question={question} index={index} />
+        <IsVisible questionId={question.id} />
       </div>
     </div>
   )

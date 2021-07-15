@@ -23,13 +23,23 @@ const makeID = (length: number) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() *
-            charactersLength));
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
 }
-
-export const reducer = (state: any, action: any) => {
+type SurveyState = {
+    pages: {
+        list_order: number;
+        //TODO: stricter
+        visibleIf: string[];
+        id: string;
+        title: string;
+        description: string;
+    }[][];
+    drag: number;
+    activePage: number;
+}
+export const reducer = (state: SurveyState, action: any) => {
     const current_page = state.pages[state.activePage - 1];
     switch (action.type) {
         case 'addPage':
@@ -41,7 +51,7 @@ export const reducer = (state: any, action: any) => {
             pages.splice(action.payload, 1);
             return { ...state, pages, activePage: state.activePage - 1 }
         case 'addQuestion':
-            current_page.push({ id: makeID(12), list_order: current_page.length })
+            current_page.push({ id: makeID(12), list_order: current_page.length, visibleIf: ['always'], title: '', description: '' })
             sortByListOrder(current_page);
             return { ...state }
         case 'deleteQuestion':
@@ -66,7 +76,13 @@ export const reducer = (state: any, action: any) => {
     }
 }
 
-export const StateContext = React.createContext({
+type ContextType = {
+    state: SurveyState;
+    //TODO: stricter
+    dispatch: any;
+}
+
+export const StateContext = React.createContext<ContextType>({
     state: initialState,
     dispatch: (param: { type: string, payload?: any }) => { }
 });
