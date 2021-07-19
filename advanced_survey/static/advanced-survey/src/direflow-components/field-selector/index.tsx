@@ -1,4 +1,6 @@
 import React, { FC, useState, useEffect, useContext } from 'react';
+
+import OptionsWidget from '../options-widget';
 import { StateContext } from '../state';
 
 enum FieldType {
@@ -79,7 +81,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <textarea className="form-control" value={options.choices} onChange={e => setOption("choices", e.target.value)}></textarea>
+                        <OptionsWidget options={options.choices} changeHandler={(ops: string[])=> setOption("choices", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
@@ -99,7 +101,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <textarea className="form-control" value={options.choices} onChange={e => setOption("choices", e.target.value)}></textarea>
+                        <OptionsWidget options={options.choices} changeHandler={(ops: string[])=> setOption("choices", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
@@ -111,7 +113,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                 <>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <textarea className="form-control" value={options.choices} onChange={e => setOption("choices", e.target.value)}></textarea>
+                        <OptionsWidget options={options.choices} changeHandler={(ops: string[])=> setOption("choices", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
@@ -150,7 +152,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Allowed exts:</label>
-                        <textarea className="form-control" value={options.exts} onChange={e => setOption("exts", e.target.value)}></textarea>
+                        <OptionsWidget options={options.exts} changeHandler={(ops: string[])=> setOption("exts", ops)} />
                     </div>
                 </>
             }
@@ -199,7 +201,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Items:</label>
-                        <textarea className="form-control" value={options.items} onChange={e => setOption("items", e.target.value)}></textarea>
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Items URL:</label>
