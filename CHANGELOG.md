@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-13-feature/DHP-22-options-widget-2
+- Textarea filed for items converted to a options field
+
 ## 0.0.1-dev-12-feature/DHP-15-get-survey
 - Get Survey(s) detail endpoint added.
 - Validation rules removed.
