@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.1-dev-14-feature/DHP-24-options-url-2
+- Options URLs refactored.
+- Options URL json fields added.
+
 ## 0.0.1-dev-13-feature/DHP-22-options-widget-2
 - Textarea filed for items converted to a options field
 

@@ -45,7 +45,6 @@ class Question(models.Model): # pylint: disable=R0902
     question = models.TextField()
     description = models.TextField(null=True, blank=True)
     field_type = models.CharField(max_length=255, choices=get_field_types())
-    options_url = models.URLField(null=True, blank=True)
     options = models.TextField(null=True, blank=True)
     is_required = models.CharField(max_length=255, null=True, blank=True)
     is_visible = models.CharField(max_length=255, null=True, blank=True)
