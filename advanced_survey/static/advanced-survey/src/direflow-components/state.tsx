@@ -59,7 +59,7 @@ export const reducer = (state: SurveyState, action: any) => {
             }
             return { ...state, pages, activePage: state.activePage - 1 }
         case 'addQuestion':
-            current_page.push({ id: makeID(12), list_order: current_page.length, field: FieldType.LineEdit, visibleIf: ['always'], question: '', description: '', option: {}})
+            current_page.push({ id: makeID(12), list_order: current_page.length, field: FieldType.LineEdit, visibleIf: ['always'], requiredIf: ['always'], question: '', description: '', option: {}})
             sortByListOrder(current_page);
             return { ...state }
         case 'deleteQuestion':

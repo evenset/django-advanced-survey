@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 
 import { StateContext } from '../state';
 import FieldSelector from '../field-selector';
-import IsVisible from '../is-visible';
+import {VisibleIf, RequiredIf} from '../is-visible';
 
 type Props = {
   index: number;
@@ -53,7 +53,8 @@ const Question: React.FC<Props> = ({index, question}) => {
           }}>{question.description}</textarea>
         </div>
         <FieldSelector key={question.id} question={question} index={index} />
-        <IsVisible questionId={question.id}/>
+        <VisibleIf questionIdx={index}/>
+        <RequiredIf questionIdx={index}/>
       </div>
     </div>
   )

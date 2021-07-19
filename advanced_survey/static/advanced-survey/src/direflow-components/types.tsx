@@ -19,6 +19,7 @@ export enum FieldType {
 export type Question = {
     list_order: number;
     visibleIf: string[];
+    requiredIf: string[];
     id: string;
     question: string;
     description: string;

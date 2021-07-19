@@ -1,23 +1,27 @@
 import React, {useEffect, useCallback, useContext} from 'react';
 import {StateContext} from '../state'
+
 type Props = {
-  questionId: string;
+  questionIdx: number;
 }
-const VisibleSelector: React.FC<Props> = (props: Props) => {
-  const questionId = props.questionId
+type InnerProps = Props & {
+  requiredSelector: boolean;
+}
+
+const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
+  const questionIdx = props.questionIdx
+  const required = props.requiredSelector
+  const questionProperty = required ? 'requiredIf' : 'visibleIf'
   const {state, dispatch} = useContext(StateContext)
   const page = state.pages[state.activePage - 1]
   const previousQuestions: typeof page = []
-  let selectedQuestion: null | typeof previousQuestions[0] = null
-  let questionIdx = 0;
 
+  const selectedQuestion = page[questionIdx]
   // need to filter out deleted but they still affect the index
   for (const question of page) {
-    if (question.id === questionId) {
-      selectedQuestion = question
+    if (question.id === selectedQuestion.id) {
       break
     }
-    questionIdx ++
     if (question.delete) continue
     previousQuestions.push(question)
   }
@@ -25,18 +29,18 @@ const VisibleSelector: React.FC<Props> = (props: Props) => {
     throw Error('Selected a nonexistent or deleted question')
   }
 
-  const update = useCallback((visibleIf: string[]) =>
+  const update = useCallback((externalConditions: string[]) =>
     {
       return dispatch({
         type: 'updateQuestion',
         payload: {
           id: questionIdx,
-          question: { ...selectedQuestion, visibleIf: visibleIf.filter(e => typeof e === 'string') }
+          question: { ...selectedQuestion, [questionProperty]: externalConditions.filter(e => typeof e === 'string') }
         }
       });
-    }, [questionIdx, selectedQuestion])
+    }, [questionIdx, selectedQuestion, dispatch, questionProperty])
   
-  const [conditionType, otherQuestionId, condition, value] = selectedQuestion.visibleIf
+  const [conditionType, otherQuestionId, condition, value] = selectedQuestion[questionProperty]
   const otherQuestion = previousQuestions.find(q => q.id === otherQuestionId) || null
   const [updateConditionType, updateOtherQuestion, updateCondition, updateValue] = [
     useCallback(
@@ -73,9 +77,11 @@ const VisibleSelector: React.FC<Props> = (props: Props) => {
     update(['always'])
   }, [update, otherQuestionId, !!previousQuestions.find(({id}) => id === otherQuestionId)])
 
+  const previousChoices = previousQuestions.find(({id}) => id === otherQuestionId)?.option?.choices
   useEffect(() => {
     if (!value) return
-    const choices = previousQuestions.find(({id}) => id === otherQuestionId)?.option?.choices?.split('\n')?.filter(truthy => truthy) || [] 
+    if (!previousChoices) return
+    const choices = previousChoices.split('\n')?.filter(truthy => truthy) || [] 
     if (!choices.length) return
     if (choices.includes(value)) return
     console.warn('Resetting the response criteria as previous choice no longer exists')
@@ -86,22 +92,23 @@ const VisibleSelector: React.FC<Props> = (props: Props) => {
     otherQuestionId,
     condition,
     value,
-    previousQuestions.find(({id}) => id === otherQuestionId)?.option?.choices
+    previousChoices,
   ])
 
   const otherQuestionChoices = otherQuestion?.option?.choices?.split('\n')?.filter(truthy => truthy)
   return (
     <div className="row container align-items-center">
-      Visible
+      {required ? 'Required' : 'Visible'}
       <div className="col-auto">
         <select className="form-control" value={conditionType} onChange={updateConditionType}>
             <option value="always">Always</option>
+            {required ? <option value="never">Never</option> : null}
             <option value="if">If</option>
             <option value="unless">Unless</option>
         </select>
       </div>
       <div className="col-auto">
-        {(conditionType !== 'always') && <select className="form-control" value={otherQuestionId} onChange={updateOtherQuestion}>
+        {(!['always', 'never'].includes(conditionType)) && <select className="form-control" value={otherQuestionId} onChange={updateOtherQuestion}>
             {!otherQuestionId && <option value="">Select a question...</option>}
             {
               previousQuestions.map(q => <option key={q.id} value={q.id}>{q.question}</option>)
@@ -124,6 +131,7 @@ const VisibleSelector: React.FC<Props> = (props: Props) => {
       </div>
     </div>
   )
-
 }
-export default VisibleSelector;
+
+export const VisibleIf: React.FC<Props> = (props: Props) => <VisibleOrRequired {...props} requiredSelector={false} />
+export const RequiredIf: React.FC<Props> = (props: Props) => <VisibleOrRequired {...props} requiredSelector={true} />
