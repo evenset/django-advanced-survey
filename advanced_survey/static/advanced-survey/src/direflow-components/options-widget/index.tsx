@@ -27,7 +27,7 @@ const OptionsWidget: FC<Props> = ({options = [], changeHandler}) => {
     return (
         <form onSubmit={submitHandler}>
             <input placeholder="Type and press enter to add a new item" type="text" className="form-control" value={value} onChange={e => setValue(e.target.value)} />
-            <span class="my-2">double click to remove, drag and drop to replace</span>
+            <div className="mt-2">double click to remove, drag and drop to replace</div>
             <div className="clearfix">
                 <ul style={{listStyle: "none", paddingInlineStart: 0, marginTop: '10px', marginBottom: '10px'}}>
                     {options.map((option, index) => (
