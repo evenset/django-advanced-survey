@@ -136,9 +136,7 @@ def get_survey(request): # pylint: disable=R0912
                         status=request.status
                     )
                 response = json.loads(request.read())
-                values = response
                 if isinstance(response, dict):
-                    values = []
                     fields = options['jsonpath'].split(".")
                     for field in fields:
                         if field not in response:
@@ -146,15 +144,15 @@ def get_survey(request): # pylint: disable=R0912
                                 {"data":f"field {field} for question {question['id']} not found"},
                                 status=404
                             )
-                        values = response[field]
-                    if not isinstance(values, list) or len(values) < 1:
+                        response = response[field]
+                    if not isinstance(response, list) or len(response) < 1:
                         return JsonResponse(
                             {"data":f"Couldn't get options for question {question['id']}"},
                             status=request.status
                         )
                 options.pop('url', None)
                 options.pop('jsonpath', None)
-                question_serialized['options']['items'] = values
+                question_serialized['options']['items'] = response
 
             if question.page in pages:
                 pages[question.page].append(question_serialized)

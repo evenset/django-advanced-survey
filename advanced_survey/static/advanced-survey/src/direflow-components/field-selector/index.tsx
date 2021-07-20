@@ -30,7 +30,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
     const [fieldtype, setFieldtype] = useState<string>(question.field);
     const [options, setOptions] = useState<any>(question.options || {});
     const {dispatch} = useContext(StateContext);
-
+    
     const setOption = (property: string, value: any) => {
         setOptions((old: any) => {
             return {...old, [property]: value};
