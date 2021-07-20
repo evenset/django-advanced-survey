@@ -21,7 +21,11 @@ const App: FC = (props: any) => {
     }).then(({data}) => {
       dispatch({type: "setPages", payload: data})
     }).catch(err => {
-      setError(err.message);
+      if (err?.response?.data?.data) {
+        setSaveError(err.response.data.data)
+      } else {
+        setSaveError(err.message);
+      }
     }).finally(() => {
       setLoading(false);
     })
@@ -46,7 +50,11 @@ const App: FC = (props: any) => {
       dispatch({type: "setPages", payload: data})
       setSaveError('Saved successfully');
     } catch (err) {
-      setSaveError(err.message);
+      if (err?.response?.data?.data) {
+        setSaveError(err.response.data.data)
+      } else {
+        setSaveError(err.message);
+      }
     } finally {
       setSaveLoading(false);
     }

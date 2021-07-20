@@ -1,4 +1,6 @@
 import React, { FC, useState, useEffect, useContext } from 'react';
+
+import OptionsWidget from '../options-widget';
 import { StateContext } from '../state';
 import {FieldType} from '../types';
 
@@ -11,7 +13,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
     const [fieldtype, setFieldtype] = useState<string>(question.field);
     const [options, setOptions] = useState<any>(question.options || {});
     const {dispatch} = useContext(StateContext);
-
+    
     const setOption = (property: string, value: any) => {
         setOptions((old: any) => {
             return {...old, [property]: value};
@@ -62,11 +64,15 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <textarea className="form-control" value={options.choices} onChange={e => setOption("choices", e.target.value)}></textarea>
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
+                    </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
                     </div>
                 </>
             }
@@ -82,11 +88,15 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <textarea className="form-control" value={options.choices} onChange={e => setOption("choices", e.target.value)}></textarea>
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
+                    </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
                     </div>
                 </>
             }
@@ -94,11 +104,15 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                 <>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <textarea className="form-control" value={options.choices} onChange={e => setOption("choices", e.target.value)}></textarea>
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
+                    </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
                     </div>
                 </>
             }
@@ -133,7 +147,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Allowed exts:</label>
-                        <textarea className="form-control" value={options.exts} onChange={e => setOption("exts", e.target.value)}></textarea>
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                 </>
             }
@@ -182,11 +196,15 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Items:</label>
-                        <textarea className="form-control" value={options.items} onChange={e => setOption("items", e.target.value)}></textarea>
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Items URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
+                    </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
                     </div>
                 </>
             }

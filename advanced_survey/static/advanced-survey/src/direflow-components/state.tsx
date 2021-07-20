@@ -3,7 +3,7 @@ import {Question, FieldType} from './types'
 export const initialState = {
     pages: [[]],
     activePage: 1,
-    drag: -1
+    drag: -1,
 };
 
 export const sortByListOrder = (arr: any[]) => {
