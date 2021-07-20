@@ -5,6 +5,7 @@ from datetime import datetime
 
 from django.http import JsonResponse
 from django.db.models import Q
+from django.urls import reverse
 
 from .models import Survey, Question
 
@@ -19,6 +20,25 @@ def serialize_question(question):
         "options": {} if question.options is None \
                     else json.loads(question.options)
     }
+
+def check_options_url(options, question_id):
+    """Validate url in options"""
+    request = urllib.request.urlopen(options['url'])
+    if request.status != 200:
+        return f"Couldn't get options for question {question_id}"
+    response = json.loads(request.read())
+    if isinstance(response, dict):
+        if 'jsonpath' not in options or options['jsonpath'] == "":
+            return f"json path for url {options['url']} is required"
+        fields = options['jsonpath'].split(".")
+        for field in fields:
+            if field not in response:
+                return f"field {field} for question {question_id} not found"
+            response = response[field]
+        if not isinstance(response, list) or len(response) < 1:
+            return f"Couldn't get options for question {question_id}"
+    return response
+
 
 def save_survey(request): # pylint: disable=R0912,R0915
     """Save Survey"""
@@ -64,28 +84,9 @@ def save_survey(request): # pylint: disable=R0912,R0915
                     if 'option' in question:
                         options = question['option']
                         if 'url' in options:
-                            if 'jsonpath' not in options or options['jsonpath'] == "":
-                                raise RuntimeError(
-                                    f"json path for url {options['url']} is required"
-                                )
-                            request = urllib.request.urlopen(options['url'])
-                            if request.status != 200:
-                                raise RuntimeError(
-                                    f"get request for {options['url']} is {request.status}"
-                                )
-                            response = json.loads(request.read())
-                            if isinstance(response, dict):
-                                fields = options['jsonpath'].split(".")
-                                values = []
-                                for field in fields:
-                                    if field not in response:
-                                        raise RuntimeError(f"field {field} not found")
-                                    values = response[field]
-                                if not isinstance(values, list) or len(values) < 1:
-                                    raise RuntimeError(
-                                        f"couldn't get a list of values from {options['url']} \
-                                        with path {options['jsonpath']}"
-                                    )
+                            response = check_options_url(options, db_question.id)
+                            if isinstance(response, str):
+                                raise RuntimeError(response)
                         db_question.options = json.dumps(options)
                     db_question.save()
                 except Exception as err: # pylint: disable=W0703
@@ -102,6 +103,28 @@ def save_survey(request): # pylint: disable=R0912,R0915
             pages[question.page] = [question_serialized]
 
     return JsonResponse(list(pages.values()), safe=False)
+
+def get_pages(surveydb):
+    """Get pages from survey"""
+    pages = {}
+    for question in surveydb.question_set.order_by('list_order', 'page'):
+        question_serialized = serialize_question(question)
+        options = question_serialized['options']
+
+        if 'url' in options:
+            response = check_options_url(options, question.id)
+            if isinstance(response, str):
+                return JsonResponse({"data": response}, status=500)
+            options.pop('url', None)
+            options.pop('jsonpath', None)
+            question_serialized['options']['items'] = response
+
+        if question.page in pages:
+            pages[question.page].append(question_serialized)
+        else:
+            pages[question.page] = [question_serialized]
+
+    return list(pages.values())
 
 def get_survey(request): # pylint: disable=R0912
     """Get Survey(s) by id (optional)"""
@@ -121,45 +144,152 @@ def get_survey(request): # pylint: disable=R0912
             "id": surveydb.id,
             "name": surveydb.name,
             "description": surveydb.description,
-            "expire_at": surveydb.expire_at
+            "expire_at": surveydb.expire_at,
+            "url": reverse("advanced_survey_save_answer")
         }
-        pages = {}
-        for question in surveydb.question_set.order_by('list_order', 'page'):
-            question_serialized = serialize_question(question)
-            options = question_serialized['options']
-
-            if 'url' in options:
-                request = urllib.request.urlopen(options['url'])
-                if request.status != 200:
-                    return JsonResponse(
-                        {"data":f"Couldn't get options for question {question['id']}"},
-                        status=request.status
-                    )
-                response = json.loads(request.read())
-                if isinstance(response, dict):
-                    fields = options['jsonpath'].split(".")
-                    for field in fields:
-                        if field not in response:
-                            return JsonResponse(
-                                {"data":f"field {field} for question {question['id']} not found"},
-                                status=404
-                            )
-                        response = response[field]
-                    if not isinstance(response, list) or len(response) < 1:
-                        return JsonResponse(
-                            {"data":f"Couldn't get options for question {question['id']}"},
-                            status=request.status
-                        )
-                options.pop('url', None)
-                options.pop('jsonpath', None)
-                question_serialized['options']['items'] = response
-
-            if question.page in pages:
-                pages[question.page].append(question_serialized)
-            else:
-                pages[question.page] = [question_serialized]
-
-        survey["pages"] = list(pages.values())
+        survey["pages"] = get_pages(surveydb)
         result.append(survey)
 
     return JsonResponse(result, safe=False)
+
+def get_element(question): # pylint: disable=R0912,R0915
+    """Get surveyjs element"""
+    options = question['options']
+
+    element = {
+        "name": f"question{question['id']}",
+        "title": question['question'],
+        "description": question['description'],
+    }
+
+    if question['field'] == "Rating":
+        element["type"] = "rating"
+        element['rateMax'] = len(options['items'])
+        item_counter = 0
+        rate_values = []
+        for item in options['items']:
+            item_counter += 1
+            rate_values.append({
+                "value": item_counter,
+                "text": item
+            })
+        element['rateValues'] = rate_values
+    elif question['field'] == "TextArea":
+        element["type"] = "comment"
+        if "max" in options and options["max"] > 0:
+            element["maxLength"] = options["max"]
+    elif question['field'] == 'Select':
+        element["type"] = "dropdown"
+        element["choices"] = options['items']
+    elif question['field'] == "Checkbox":
+        element["type"] = "checkbox"
+        element["choices"] = options['items']
+        min_count = 0
+        max_count = 0
+        if 'min' in options:
+            min_count = int(options['min'])
+        if 'max' in options:
+            max_count = int(options['max'])
+        if min_count > 0 or max_count > 0:
+            validator = {"type": "answercount"}
+            if min_count > 0:
+                validator["minCount"] = min_count
+            if max_count > 0:
+                validator["maxCount"] = max_count
+            element["validators"] = [validator]
+    elif question['field'] == "Radiobox":
+        element["type"] = "radiogroup"
+        element["choices"] = options['items']
+    elif question["field"] == "Email":
+        element["type"] = "text"
+        element["inputType"] = "email"
+        element["validators"] = [{"type":"email"}]
+    elif question["field"] == "URL":
+        element["type"] = "text"
+        element["inputType"] = "url"
+    elif question["field"] == "Phone":
+        element["type"] = "text"
+        element["inputType"] = "phone"
+    elif question["field"] == "Boolean":
+        element["type"] = "boolean"
+    elif question["field"] == "Numeric":
+        element["type"] = "text"
+        element["inputType"] = "numeric"
+        min_value = 0
+        max_value = 0
+        if 'min' in options:
+            min_value = int(options['min'])
+        if 'max' in options:
+            max_value = int(options['max'])
+        if min_value > 0 or max_value > 0:
+            validator = {"type": "numeric"}
+            if min_value > 0:
+                validator["minValue"] = min_value
+            if max_value > 0:
+                validator["maxValue"] = max_value
+            element["validators"] = [validator]
+    elif question["field"] == "File":
+        element["type"] = "file"
+        if "multiple" in options:
+            element["allowMultiple"] = True
+        if "max_size" in options:
+            element["maxSize"] = int(options["max_size"]) * 1024
+        if "items" in options:
+            accepted_types = []
+            for ext in options["items"]:
+                if ext[0] != ".":
+                    ext = "."+ext
+                if ext not in accepted_types:
+                    accepted_types.append(ext)
+            element["acceptedTypes"] = "|".join(accepted_types)
+    elif question["field"] == "Image":
+        element["type"] = "file"
+        if "multiple" in options:
+            element["allowMultiple"] = True
+        if "max_size" in options:
+            element["maxSize"] = int(options["max_size"]) * 1024
+        element["acceptedTypes"] = ".png|.jpg"
+    elif question["field"] == "Date":
+        element["type"] = "datepicker"
+        element["inputType"] = "date"
+    elif question["field"] == "Time":
+        element["type"] = "timepicker"
+        element["inputType"] = "time"
+    else:
+        element["type"] = "text"
+
+    return element
+
+def get_surveyjs(request):
+    """Get Surveyjs format by id"""
+    if 'id' not in request.GET:
+        return JsonResponse({"data":"Empty Survey ID"}, status=406)
+
+    survey = Survey.objects.filter(
+        Q(expire_at__isnull=True) | Q(expire_at__lt=datetime.today())
+    ).filter(id=request.GET['id']).first()
+
+    if survey is None:
+        return JsonResponse(
+            {"data":f"Survey with ID {request.GET['id']} not found"},
+            status=404
+        )
+
+    pages = get_pages(survey)
+    page_counter = 0
+    surveyjs = {"pages": [], "url": reverse("advanced_survey_save_answer")}
+    for page in pages:
+        elements = []
+        for question in page:
+            elements.append(get_element(question))
+        page_counter += 1
+        surveyjs["pages"].append({
+            "name": f"page{page_counter}",
+            "elements": elements
+        })
+
+    return JsonResponse(surveyjs)
+
+def save_answer(request):
+    """Save answer"""
+    return JsonResponse({"message": "TODO"})

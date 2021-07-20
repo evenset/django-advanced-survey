@@ -81,7 +81,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <OptionsWidget options={options.choices} changeHandler={(ops: string[])=> setOption("choices", ops)} />
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
@@ -105,7 +105,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <OptionsWidget options={options.choices} changeHandler={(ops: string[])=> setOption("choices", ops)} />
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
@@ -121,7 +121,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                 <>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
-                        <OptionsWidget options={options.choices} changeHandler={(ops: string[])=> setOption("choices", ops)} />
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
@@ -164,7 +164,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                     <div className="form-group mb-2">
                         <label>Allowed exts:</label>
-                        <OptionsWidget options={options.exts} changeHandler={(ops: string[])=> setOption("exts", ops)} />
+                        <OptionsWidget options={options.items} changeHandler={(ops: string[])=> setOption("items", ops)} />
                     </div>
                 </>
             }

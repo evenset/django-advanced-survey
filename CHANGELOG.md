@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-15-feature/DHP-21-surveyjs-format
+- Add an endpoint to retrieve Survey.js json format
+
 ## 0.0.1-dev-14-feature/DHP-24-options-url-2
 - Options URLs refactored.
 - Options URL json fields added.
