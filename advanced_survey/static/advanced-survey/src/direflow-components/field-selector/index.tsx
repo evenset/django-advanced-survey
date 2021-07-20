@@ -30,7 +30,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
     const [fieldtype, setFieldtype] = useState<string>(question.field);
     const [options, setOptions] = useState<any>(question.options || {});
     const {dispatch} = useContext(StateContext);
-
+    
     const setOption = (property: string, value: any) => {
         setOptions((old: any) => {
             return {...old, [property]: value};
@@ -87,6 +87,10 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                         <label>Choices URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
                     </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
+                    </div>
                 </>
             }
             {fieldtype === "Checkbox" &&
@@ -107,6 +111,10 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                         <label>Choices URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
                     </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
+                    </div>
                 </>
             }
             {fieldtype === "Radiobox" &&
@@ -118,6 +126,10 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     <div className="form-group mb-2">
                         <label>Choices URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
+                    </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
                     </div>
                 </>
             }
@@ -206,6 +218,10 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     <div className="form-group mb-2">
                         <label>Items URL:</label>
                         <input type="url" className="form-control" value={options.url} onChange={e => setOption("url", e.target.value)} />
+                    </div>
+                    <div className="form-group mb-2">
+                        <label>JSON field path:</label>
+                        <input type="text" className="form-control" value={options.jsonpath} onChange={e => setOption("jsonpath", e.target.value)} />
                     </div>
                 </>
             }
