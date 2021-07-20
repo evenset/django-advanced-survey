@@ -19,11 +19,6 @@ const App: FC = (props: any) => {
       method: 'GET',
       url: `${document.location.origin}${props.save_url}?id=${props.id}`
     }).then(({data}) => {
-      // When developing using only direflow, this loads invalid data into the state
-      if (process.env.DIREFLOW_ONLY) {
-        console.log('Skipping loadData')
-        return
-      }
       dispatch({type: "setPages", payload: data})
     }).catch(err => {
       setError(err.message);
