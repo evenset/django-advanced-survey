@@ -2,7 +2,9 @@ import React, { FC, useState, useEffect, useContext } from 'react';
 
 import OptionsWidget from '../options-widget';
 import { StateContext } from '../state';
-import {FieldType} from '../types';
+import {FieldType, QuestionOptions} from '../types';
+
+type OptionKey = keyof QuestionOptions
 
 interface IProps {
     index: number;
@@ -11,11 +13,11 @@ interface IProps {
 
 const FieldSelector: FC<IProps> = ({index, question}) => {
     const [fieldtype, setFieldtype] = useState<string>(question.field);
-    const [options, setOptions] = useState<any>(question.options || {});
+    const [options, setOptions] = useState<QuestionOptions>(question.options || {});
     const {dispatch} = useContext(StateContext);
     
-    const setOption = (property: string, value: any) => {
-        setOptions((old: any) => {
+    function setOption<K extends OptionKey>(property: OptionKey, value: QuestionOptions[K]) {
+        setOptions((old: QuestionOptions) => {
             return {...old, [property]: value};
         })
     }

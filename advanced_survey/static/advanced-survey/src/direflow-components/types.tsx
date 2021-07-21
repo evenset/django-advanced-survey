@@ -16,6 +16,19 @@ export enum FieldType {
     Rating
 }
 
+export type QuestionOptions = {
+    min?: number;
+    max?: number;
+    max_size?: number;
+    step?: number;
+    multiple?: boolean;
+    items?: string[];
+    url?: string;
+    jsonpath?: string;
+    type?: 'Star' | 'Table';
+    choices?: string | undefined;
+}
+
 export type Question = {
     list_order: number;
     visibleIf: string[];
@@ -23,9 +36,7 @@ export type Question = {
     id: string;
     question: string;
     description: string;
-    option: {
-        choices?: string | undefined;
-    };
+    option: QuestionOptions;
     field: FieldType;
     delete?: boolean;
 };

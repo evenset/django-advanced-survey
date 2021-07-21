@@ -6,8 +6,8 @@ export const initialState = {
     drag: -1,
 };
 
-export const sortByListOrder = (arr: any[]) => {
-    arr.sort((a: any, b: any) => {
+export const sortByListOrder = (arr: Question[]) => {
+    arr.sort((a: Question, b: Question) => {
         if (a.list_order < b.list_order) {
             return -1;
         }
@@ -52,7 +52,7 @@ export const reducer = (state: SurveyState, action: any) => {
             if (pages[action.payload].length === 0) {
                 pages.splice(action.payload, 1);
             } else {
-                pages[action.payload].map((question: any) => {
+                pages[action.payload].map((question: Question) => {
                     question.delete = true;
                     return question;
                 })
@@ -94,5 +94,5 @@ type ContextType = {
 export const StateContext = React.createContext<ContextType>({
     state: initialState,
     props: {},
-    dispatch: (param: { type: string, payload?: any }) => {},
+    dispatch: (param: { type: string; payload?: any }) => {},
 });
