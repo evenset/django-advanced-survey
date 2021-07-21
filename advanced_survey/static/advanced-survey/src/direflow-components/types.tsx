@@ -20,7 +20,7 @@ export const FieldTypeNames: Record<FieldType, string> = {
     [FieldType.TextArea]: 'Multiline Text',
     [FieldType.Select]: 'Select Dropdown',
     [FieldType.Checkbox]: 'Check Box',
-    [FieldType.Radiobox]: 'Radio Button',
+    [FieldType.Radiobox]: 'Multiple Choice',
     [FieldType.Email]: 'Email',
     [FieldType.URL]: 'URL',
     [FieldType.Phone]: 'Phone Number',
