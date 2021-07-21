@@ -20,7 +20,6 @@
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
         function sendDataToServer(survey) {
-            //send Ajax request to your web server.
             jQuery.ajax({
                 method: "POST",
                 url: '{{ submit_url }}',
@@ -29,12 +28,25 @@
                 data: {
                     id: '{{ id }}',
                     ...survey.data
+                }
+            })
+        }
+
+        function validatePage(survey, options) {
+            jQuery.ajax({
+                method: "POST",
+                url: '{{ submit_url }}',
+                dataType: 'json',
+                headers: {'X-CSRFToken': csrftoken},
+                data: {
+                    id: '{{ id }}',
+                    page: survey.currentPage.name,
+                    ...survey.data
                 },
-                success: res => {
-                    console.log(res);
-                },
-                error: err => {
-                    console.warn(err.message);
+                success: options.complete,
+                error: xhr => {
+                    console.log(xhr.responseText)
+                    // SET options.errors
                 }
             })
         }
@@ -42,7 +54,8 @@
         const survey = new Survey.Model(surveyJSON);
         $("#surveyContainer").Survey({
             model: survey,
-            onComplete: sendDataToServer
+            onServerValidateQuestions: validatePage,
+            onComplete: sendDataToServer,
         });
     </script>
 </body>

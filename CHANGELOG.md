@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-19-feature/feature/DHP-26-save-answer
+- Save answer to the db added
+
 ## 0.0.1-dev-18-feature/DHP-23-field-type-names
 - Stricter typing in Field Type Selector
 - Better names for field types
