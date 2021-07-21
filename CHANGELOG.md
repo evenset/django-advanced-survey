@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-17-feature/DHP-25-example-page
+- Example survey.js format page added
+
 ## 0.0.1-dev-16-feature/DHP-10-visible-required
 - Add a selector to reference previous questions
 - Make the type restrictions stricter on the state
