@@ -13,4 +13,4 @@ class SurveyAdmin(admin.ModelAdmin):
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     """AnswerAdmin"""
-    list_display = ('user', 'survey')
+    list_display = ('question', 'survey', 'session', 'user')

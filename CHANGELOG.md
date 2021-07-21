@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-18-feature/feature/DHP-26-save-answer
+- Save answer to the db added
+
 ## 0.0.1-dev-17-feature/DHP-25-example-page
 - Example survey.js format page added
 

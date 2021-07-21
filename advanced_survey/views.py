@@ -1,5 +1,7 @@
 """Views"""
 import json
+import re
+import uuid
 import urllib.request
 from datetime import datetime
 
@@ -8,7 +10,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.shortcuts import render
 
-from .models import Survey, Question
+from .models import Survey, Question, Answer
 
 def serialize_question(question):
     """Serialize Question"""
@@ -17,6 +19,15 @@ def serialize_question(question):
         "list_order": question.list_order,
         "question": question.question,
         "description": question.description,
+        "field": question.field_type,
+        "options": {} if question.options is None \
+                    else json.loads(question.options)
+    }
+
+def prepare_question(question):
+    """Get question information for validation"""
+    return {
+        "id": question.id,
         "field": question.field_type,
         "options": {} if question.options is None \
                     else json.loads(question.options)
@@ -291,7 +302,14 @@ def get_surveyjs(request):
 
     return JsonResponse(surveyjs)
 
-def save_answer(request):
+def validate(question, answer):
+    """Validate answer by given question"""
+    print(answer)
+    question = prepare_question(question)
+    # to do : validate answer
+    return True
+
+def save_answer(request): # pylint: disable=R0912
     """Save answer"""
     if 'id' not in request.POST:
         return JsonResponse({"data":"Empty Survey ID"}, status=406)
@@ -306,7 +324,43 @@ def save_answer(request):
             status=404
         )
 
-    return JsonResponse({"data": "TODO"})
+    answers = {}
+    regex = r'question(\d+)\[(\d+)\]\[(.+)\]'
+    for question, answer in request.POST.items():
+        if question.startswith("question"):
+            if "[" in question:
+                data = re.findall(regex, question)
+                qid, index, key = data[0]
+                if qid not in answers:
+                    answers[qid] = {}
+                if index not in answers[qid]:
+                    answers[qid][index] = {}
+                answers[qid][index][key] = answer
+            else:
+                qid = question.replace("question", "")
+                answers[qid] = answer
+
+    for question in survey.question_set.all():
+        qid = str(question.id)
+        if qid not in answers:
+            answer = None
+        else:
+            answer = answers[qid]
+        is_valid = validate(question, answer)
+        if isinstance(is_valid, str):
+            return JsonResponse({"data": is_valid}, status=406)
+
+    session_id = str(uuid.uuid4())
+    for question_id, answer in answers.items():
+        answerdb = Answer()
+        answerdb.user = request.user if request.user.is_authenticated else None
+        answerdb.survey = survey
+        answerdb.question_id = question_id
+        answerdb.answer = json.dumps(answer) if isinstance(answer, dict) else answer
+        answerdb.session = session_id
+        answerdb.save()
+
+    return JsonResponse({"data": "saved"})
 
 def example(request):
     """Render example survey js format page"""
