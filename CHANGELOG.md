@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.1-dev-16-feature/DHP-10-visible-required
+- Add a selector to reference previous questions
+- Make the type restrictions stricter on the state
+
 ## 0.0.1-dev-15-feature/DHP-21-surveyjs-format
 - Add an endpoint to retrieve Survey.js json format
 
