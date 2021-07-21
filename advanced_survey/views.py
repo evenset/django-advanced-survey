@@ -6,6 +6,7 @@ from datetime import datetime
 from django.http import JsonResponse
 from django.db.models import Q
 from django.urls import reverse
+from django.shortcuts import render
 
 from .models import Survey, Question
 
@@ -292,4 +293,47 @@ def get_surveyjs(request):
 
 def save_answer(request):
     """Save answer"""
-    return JsonResponse({"message": "TODO"})
+    if 'id' not in request.POST:
+        return JsonResponse({"data":"Empty Survey ID"}, status=406)
+
+    survey = Survey.objects.filter(
+        Q(expire_at__isnull=True) | Q(expire_at__lt=datetime.today())
+    ).filter(id=request.POST['id']).first()
+
+    if survey is None:
+        return JsonResponse(
+            {"data":f"Survey with ID {request.GET['id']} not found"},
+            status=404
+        )
+
+    return JsonResponse({"data": "TODO"})
+
+def example(request):
+    """Render example survey js format page"""
+    survey = Survey.objects.filter(
+        Q(expire_at__isnull=True) | Q(expire_at__lt=datetime.today())
+    ).first()
+
+    if survey is None:
+        raise RuntimeError("There is no active survey to show")
+
+    pages = get_pages(survey)
+    page_counter = 0
+    surveyjs = {"pages": []}
+    for page in pages:
+        elements = []
+        for question in page:
+            elements.append(get_element(question))
+        page_counter += 1
+        surveyjs["pages"].append({
+            "name": f"page{page_counter}",
+            "elements": elements
+        })
+
+    context = {
+        "id": survey.id,
+        "survey": json.dumps(surveyjs),
+        "submit_url": reverse("advanced_survey_save_answer")
+    }
+
+    return render(request, 'advanced_survey/example.html', context)
