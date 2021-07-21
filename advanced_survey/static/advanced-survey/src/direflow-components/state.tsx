@@ -1,13 +1,13 @@
 import React from 'react';
-
+import {Question, FieldType} from './types'
 export const initialState = {
     pages: [[]],
     activePage: 1,
     drag: -1,
 };
 
-export const sortByListOrder = (arr: any[]) => {
-    arr.sort((a: any, b: any) => {
+export const sortByListOrder = (arr: Question[]) => {
+    arr.sort((a: Question, b: Question) => {
         if (a.list_order < b.list_order) {
             return -1;
         }
@@ -23,13 +23,19 @@ const makeID = (length: number) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() *
-            charactersLength));
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
 }
 
-export const reducer = (state: any, action: any) => {
+
+type SurveyState = {
+    pages: Question[][];
+    drag: number;
+    activePage: number;
+}
+export const reducer = (state: SurveyState, action: any) => {
+    // console.log(action)
     const current_page = state.pages[state.activePage - 1];
     switch (action.type) {
         case 'setPages':
@@ -46,14 +52,14 @@ export const reducer = (state: any, action: any) => {
             if (pages[action.payload].length === 0) {
                 pages.splice(action.payload, 1);
             } else {
-                pages[action.payload].map((question: any) => {
+                pages[action.payload].map((question: Question) => {
                     question.delete = true;
                     return question;
                 })
             }
             return { ...state, pages, activePage: state.activePage - 1 }
         case 'addQuestion':
-            current_page.push({ id: makeID(12), list_order: current_page.length, field: 'LineEdit' })
+            current_page.push({ id: makeID(12), list_order: current_page.length, field: FieldType.LineEdit, visibleIf: ['always'], requiredIf: ['always'], question: '', description: '', option: {}})
             sortByListOrder(current_page);
             return { ...state }
         case 'deleteQuestion':
@@ -78,8 +84,15 @@ export const reducer = (state: any, action: any) => {
     }
 }
 
-export const StateContext = React.createContext({
-    props: {},
+type ContextType = {
+    state: SurveyState;
+    //TODO: stricter
+    dispatch: any;
+    props: {};
+}
+
+export const StateContext = React.createContext<ContextType>({
     state: initialState,
-    dispatch: (param: { type: string, payload?: any }) => {},
+    props: {},
+    dispatch: (param: { type: string; payload?: any }) => {},
 });

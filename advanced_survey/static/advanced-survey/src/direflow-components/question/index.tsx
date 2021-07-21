@@ -2,10 +2,11 @@ import React, {useContext} from 'react';
 
 import { StateContext } from '../state';
 import FieldSelector from '../field-selector';
+import {VisibleIf, RequiredIf} from '../previous-answer-selector';
 
 type Props = {
-  index: number,
-  question: any
+  index: number;
+  question: any;
 }
 
 const Question: React.FC<Props> = ({index, question}) => {
@@ -52,6 +53,8 @@ const Question: React.FC<Props> = ({index, question}) => {
           }}>{question.description}</textarea>
         </div>
         <FieldSelector key={question.id} question={question} index={index} />
+        <VisibleIf questionIdx={index}/>
+        <RequiredIf questionIdx={index}/>
       </div>
     </div>
   )
