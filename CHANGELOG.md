@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.1-dev-17-feature/DHP-23-field-type-names
+- Stricter typing in Field Type Selector
+- Better names for field types
+
 ## 0.0.1-dev-16-feature/DHP-10-visible-required
 - Add a selector to reference previous questions
 - Make the type restrictions stricter on the state
