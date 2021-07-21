@@ -17,7 +17,7 @@ export enum FieldType {
 }
 export const FieldTypeNames: Record<FieldType, string> = {
     [FieldType.LineEdit]: 'Single Line Text',
-    [FieldType.TextArea]: 'Multiline text',
+    [FieldType.TextArea]: 'Multiline Text',
     [FieldType.Select]: 'Select Dropdown',
     [FieldType.Checkbox]: 'Check Box',
     [FieldType.Radiobox]: 'Radio Button',
