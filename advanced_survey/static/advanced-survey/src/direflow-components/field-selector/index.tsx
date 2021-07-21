@@ -2,18 +2,18 @@ import React, { FC, useState, useEffect, useContext } from 'react';
 
 import OptionsWidget from '../options-widget';
 import { StateContext } from '../state';
-import {FieldType, QuestionOptions} from '../types';
+import {FieldType, FieldTypeNames, QuestionOptions, Question} from '../types';
 
 type OptionKey = keyof QuestionOptions
 
 interface IProps {
     index: number;
-    question: any;
+    question: Question;
 }
 
 const FieldSelector: FC<IProps> = ({index, question}) => {
-    const [fieldtype, setFieldtype] = useState<string>(question.field);
-    const [options, setOptions] = useState<QuestionOptions>(question.options || {});
+    const [fieldtype, setFieldtype] = useState<FieldType>(question.field);
+    const [options, setOptions] = useState<QuestionOptions>(question.option || {});
     const {dispatch} = useContext(StateContext);
     
     function setOption<K extends OptionKey>(property: OptionKey, value: QuestionOptions[K]) {
@@ -34,16 +34,16 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
             <div className="form-group mb-2">
                 <label>Field Type:</label>
                 <select value={fieldtype} className="form-control" onChange={e => {
-                    setFieldtype(e.target.value);
+                    setFieldtype(parseInt(e.target.value));
                     setOptions({});
                 }}>
                     {Object.keys(FieldType).map((key: string) => {
                         if (isNaN(parseInt(key))) return null;
-                        return <option key={key}>{FieldType[parseInt(key)]}</option>
+                        return <option key={key} value={key}>{FieldTypeNames[parseInt(key) as FieldType]}</option>
                     })}
                 </select>
             </div>
-            {fieldtype === "TextArea" &&
+            {fieldtype === FieldType.TextArea &&
                 <>
                     <div className="form-group mb-2">
                         <label>Min characters:</label>
@@ -55,7 +55,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "Select" &&
+            {fieldtype === FieldType.Select &&
                 <>
                     <div className="form-group mb-2">
                         <label><input type="checkbox" checked={options.multiple} onChange={e => setOption("multiple", e.target.checked)} /> Multiple choice</label>
@@ -78,7 +78,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "Checkbox" &&
+            {fieldtype === FieldType.Checkbox &&
                 <>
                     <div className="form-group mb-2">
                         <label>Min choices:</label>
@@ -102,7 +102,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "Radiobox" &&
+            {fieldtype === FieldType.Radiobox &&
                 <>
                     <div className="form-group mb-2">
                         <label>Choices:</label>
@@ -118,7 +118,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "Numeric" &&
+            {fieldtype === FieldType.Numeric &&
                 <>
                     <div className="form-group mb-2">
                         <label>Min:</label>
@@ -134,7 +134,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "File" &&
+            {fieldtype === FieldType.File &&
                 <>
                     <div className="form-group mb-2">
                         <label><input type="checkbox" checked={options.multiple} onChange={e => setOption("multiple", e.target.checked)} /> Multiple files</label>
@@ -153,7 +153,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "Image" &&
+            {fieldtype === FieldType.Image &&
                 <>
                     <div className="form-group mb-2">
                         <label><input type="checkbox" checked={options.multiple} onChange={e => setOption("multiple", e.target.checked)} /> Multiple images</label>
@@ -168,7 +168,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "Date" &&
+            {fieldtype === FieldType.Date &&
                 <>
                     <div className="form-group mb-2">
                         <label>Min:</label>
@@ -180,7 +180,7 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
                     </div>
                 </>
             }
-            {fieldtype === "Rating" &&
+            {fieldtype === FieldType.Rating &&
                 <>
                     <div className="form-group mb-2">
                         <label>Max:</label>

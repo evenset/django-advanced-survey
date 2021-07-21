@@ -13,7 +13,24 @@ export enum FieldType {
     Image,
     Date,
     Time,
-    Rating
+    Rating,
+}
+export const FieldTypeNames: Record<FieldType, string> = {
+    [FieldType.LineEdit]: 'Single Line Text',
+    [FieldType.TextArea]: 'Multiline text',
+    [FieldType.Select]: 'Select Dropdown',
+    [FieldType.Checkbox]: 'Check Box',
+    [FieldType.Radiobox]: 'Radio Button',
+    [FieldType.Email]: 'Email',
+    [FieldType.URL]: 'URL',
+    [FieldType.Phone]: 'Phone Number',
+    [FieldType.Boolean]: 'True or False',
+    [FieldType.Numeric]: 'Number',
+    [FieldType.File]: 'File Upload',
+    [FieldType.Image]: 'Image Upload',
+    [FieldType.Date]: 'Date',
+    [FieldType.Time]: 'Time',
+    [FieldType.Rating]: 'Rating',
 }
 
 export type QuestionOptions = {
