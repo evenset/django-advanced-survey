@@ -70,20 +70,20 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
       [conditionType, otherQuestionId, condition, update]
     ),
   ]
+  const otherQuestionFound = !!otherQuestion?.id
   useEffect(() => {
     if (!otherQuestionId) return
-    if (previousQuestions.find(({id}) => id === otherQuestionId)) return
+    if (otherQuestionFound) return
     console.warn('Resetting the visible criteria as previous question no longer exists')
     update(['always'])
-  }, [update, otherQuestionId, !!previousQuestions.find(({id}) => id === otherQuestionId)])
+  }, [update, otherQuestionId, otherQuestionFound])
 
-  const previousChoices = previousQuestions.find(({id}) => id === otherQuestionId)?.option?.choices
+  const previousChoices = otherQuestion?.option?.items
   useEffect(() => {
     if (!value) return
     if (!previousChoices) return
-    const choices = previousChoices.split('\n')?.filter(truthy => truthy) || [] 
-    if (!choices.length) return
-    if (choices.includes(value)) return
+    if (!previousChoices.length) return
+    if (previousChoices.includes(value)) return
     console.warn('Resetting the response criteria as previous choice no longer exists')
     update([conditionType, otherQuestionId, condition])
   }, [
@@ -95,7 +95,6 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
     previousChoices,
   ])
 
-  const otherQuestionChoices = otherQuestion?.option?.choices?.split('\n')?.filter(truthy => truthy)
   return (
     <div className="row container align-items-center">
       {required ? 'Required' : 'Visible'}
@@ -122,10 +121,10 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
         </select>}
       </div>
       <div className="col-auto">
-        {condition === 'isAnsweredWith' && (otherQuestionChoices?.length ? (
+        {condition === 'isAnsweredWith' && (previousChoices?.length ? (
           <select className="form-control" value={value} onChange={updateValue}>
-              {(!value || !otherQuestionChoices.includes(value)) && <option value={undefined}>Select a response...</option>}
-              {otherQuestionChoices.map(choice => <option key={choice} value={choice}>{choice}</option>)}
+              {(!value || !previousChoices.includes(value)) && <option value={undefined}>Select a response...</option>}
+              {previousChoices.map(choice => <option key={choice} value={choice}>{choice}</option>)}
           </select>
         ) : <input className="form-control" value={value} onChange={updateValue} />)}
       </div>

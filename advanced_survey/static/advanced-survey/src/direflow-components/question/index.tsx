@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 
 import { StateContext } from '../state';
 import FieldSelector from '../field-selector';
-import {VisibleIf, RequiredIf} from '../is-visible';
+import {VisibleIf, RequiredIf} from '../previous-answer-selector';
 
 type Props = {
   index: number;
