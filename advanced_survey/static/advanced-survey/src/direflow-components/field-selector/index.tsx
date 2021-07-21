@@ -34,13 +34,12 @@ const FieldSelector: FC<IProps> = ({index, question}) => {
             <div className="form-group mb-2">
                 <label>Field Type:</label>
                 <select value={fieldtype} className="form-control" onChange={e => {
-                    setFieldtype(parseInt(e.target.value));
+                    setFieldtype(e.target.value as FieldType);
                     setOptions({});
                 }}>
-                    {Object.keys(FieldType).map((key: string) => {
-                        if (isNaN(parseInt(key))) return null;
-                        return <option key={key} value={key}>{FieldTypeNames[parseInt(key) as FieldType]}</option>
-                    })}
+                    {Object.keys(FieldType).map((key: string) => (
+                        <option key={key} value={key}>{FieldTypeNames[key as FieldType]}</option>)
+                    )}
                 </select>
             </div>
             {fieldtype === FieldType.TextArea &&
