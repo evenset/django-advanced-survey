@@ -50,7 +50,7 @@ export type Question = {
     list_order: number;
     visibleIf: (string | number)[];
     requiredIf: (string | number)[];
-    id: number;
+    id: number | string;
     question: string;
     description: string;
     option: QuestionOptions;

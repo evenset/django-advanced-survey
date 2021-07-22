@@ -20,12 +20,12 @@ export const sortByListOrder = (arr: Question[]) => {
 
 const makeID = (length: number) => {
     let result = '';
-    const characters = '0123456789';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
-    return parseInt(result);
+    return result;
 }
 
 
