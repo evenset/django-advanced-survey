@@ -301,28 +301,28 @@ def get_surveyjs(request):
 
     return JsonResponse(surveyjs)
 
-def validate(question, answer):
+def validate(question, answer): # pylint: disable=R0911,R0912
     """Validate answer by given question"""
     field_type, options = prepare_question(question)
     if field_type == "Rating":
         rate_max = len(options['items'])
         try:
             answer = int(answer)
-        except:
-            return f"Answer is not valid"
+        except: # pylint: disable=W0702
+            return "Answer is not valid"
         if answer < 1 or answer > rate_max:
             return f"Answer should be 1 and {rate_max}"
     elif field_type == "TextArea":
         if "max" in options and options["max"] > 0 and len(answer) >  options["max"]:
             return f"Answer should be less than {options['max']} characters"
     elif field_type == 'Select':
-        for op in answer:
-            if op not in options['items']:
-                return f"{op} is not a valid option"
+        for opt in answer:
+            if opt not in options['items']:
+                return f"{opt} is not a valid option"
     elif field_type == "Checkbox":
-        for op in answer:
-            if op not in options['items']:
-                return f"{op} is not a valid option"
+        for opt in answer:
+            if opt not in options['items']:
+                return f"{opt} is not a valid option"
         if 'min' in options:
             min_count = int(options['min'])
             if min_count > 0 and len(answer) < min_count:
@@ -337,21 +337,17 @@ def validate(question, answer):
     elif field_type == "Email":
         try:
             validate_email(answer)
-        except:
+        except: # pylint: disable=W0702
             return f"{answer} is not a valid email address"
     elif field_type == "Numeric":
         try:
             answer = int(answer)
-        except:
-            return f"Answer is not valid"
-        if 'min' in options:
-            min_value = int(options['min'])
-            if min_value > 0 and answer < min_value:
-                return f"{answer} should be greater than {min_value}"
-        if 'max' in options:
-            max_value = int(options['max'])
-            if max_value > 0 and answer > max_value:
-                return f"{answer} should be less than {min_value}"
+        except: # pylint: disable=W0702
+            return "Answer is not valid"
+        if 'min' in options and answer < int(options['min']):
+            return f"{answer} should be greater than {options['min']}"
+        if 'max' in options and answer > int(options['max']):
+            return f"{answer} should be less than {options['max']}"
 
     return True
 
