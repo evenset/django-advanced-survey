@@ -1,4 +1,4 @@
-import React, { FC, useReducer, useState, useEffect } from 'react';
+import React, { FC, useReducer, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 import {StateContext, reducer, initialState} from '../state';
@@ -12,13 +12,13 @@ const App: FC = (props: any) => {
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
   const [saveError, setSaveError] = useState<string>('');
 
-  const loadData = () => {
-    if (props.id == 0) return;
+  const loadData = useCallback(() => {
+    if (!props.id) return;
     setError('');
     setLoading(true);
     axios({
       method: 'GET',
-      url: `${document.location.origin}${props.save_url}?id=${props.id}`
+      url: `http://127.0.0.1:8000${props.save_url}?id=${props.id}`
     }).then(({data}) => {
       dispatch({type: "setPages", payload: data})
     }).catch(err => {
@@ -30,11 +30,11 @@ const App: FC = (props: any) => {
     }).finally(() => {
       setLoading(false);
     })
-  }
+  }, [props.id, props.save_url])
 
   useEffect(() => {
     loadData();
-  }, [props])
+  }, [loadData])
 
   const saveQuestions = async() => {
     if (saveLoading) return;

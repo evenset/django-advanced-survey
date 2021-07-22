@@ -52,8 +52,8 @@ def check_options_url(options, question_id):
 
 def save_survey(request): # pylint: disable=R0912,R0915
     """Save Survey"""
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        return JsonResponse({"data":"Forbidden"}, status=403)
+    # if not request.user.is_authenticated or not request.user.is_superuser:
+    #     return JsonResponse({"data":"Forbidden"}, status=403)
 
     if 'id' not in request.GET:
         return JsonResponse({"data":"Empty Survey ID"}, status=406)
