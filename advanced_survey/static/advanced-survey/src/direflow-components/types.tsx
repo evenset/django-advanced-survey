@@ -48,9 +48,9 @@ export type QuestionOptions = {
 
 export type Question = {
     list_order: number;
-    visibleIf: string[];
-    requiredIf: string[];
-    id: string;
+    visibleIf: (string | number)[];
+    requiredIf: (string | number)[];
+    id: number;
     question: string;
     description: string;
     option: QuestionOptions;

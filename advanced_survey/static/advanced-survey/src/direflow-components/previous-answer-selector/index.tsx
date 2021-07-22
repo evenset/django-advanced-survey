@@ -29,12 +29,12 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
     throw Error('Selected a nonexistent or deleted question')
   }
 
-  const update = useCallback((externalConditions: string[]) => {
+  const update = useCallback((externalConditions: (string | number)[]) => {
     return dispatch({
       type: 'updateQuestion',
       payload: {
         id: questionIdx,
-        question: { ...selectedQuestion, [questionProperty]: externalConditions.filter(e => typeof e === 'string') }
+        question: { ...selectedQuestion, [questionProperty]: externalConditions.filter(e => ['string', 'number'].includes(typeof e)) }
       }
     });
   }, [questionIdx, selectedQuestion, dispatch, questionProperty])
@@ -52,7 +52,7 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
       }, [otherQuestionId, condition, value, update]
     ),
     useCallback(
-      (evt: { target: { value: string } }) => update([conditionType, evt.target.value, condition || 'isAnswered', value]),
+      (evt: { target: { value: string } }) => update([conditionType, parseInt(evt.target.value), condition || 'isAnswered', value]),
       [conditionType, condition, value, update]
     ),
     useCallback(
@@ -82,7 +82,7 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
     if (!value) return
     if (!previousChoices) return
     if (!previousChoices.length) return
-    if (previousChoices.includes(value)) return
+    if (previousChoices.includes(String(value))) return
     console.warn('Resetting the response criteria as previous choice no longer exists')
     update([conditionType, otherQuestionId, condition])
   }, [
@@ -106,7 +106,7 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
         </select>
       </div>
       <div className="col-auto">
-        {(!['always', 'never'].includes(conditionType)) && <select className="form-control" value={otherQuestionId} onChange={updateOtherQuestion}>
+        {(!['always', 'never'].includes(String(conditionType))) && <select className="form-control" value={otherQuestionId} onChange={updateOtherQuestion}>
           {!otherQuestionId && <option value="">Select a question...</option>}
           {
             previousQuestions.map(q => <option key={q.id} value={q.id}>{q.question}</option>)
@@ -122,7 +122,7 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
       <div className="col-auto">
         {condition === 'isAnsweredWith' && (previousChoices?.length ? (
           <select className="form-control" value={value} onChange={updateValue}>
-            {(!value || !previousChoices.includes(value)) && <option value={undefined}>Select a response...</option>}
+            {(!value || !previousChoices.includes(String(value))) && <option value={undefined}>Select a response...</option>}
             {previousChoices.map(choice => <option key={choice} value={choice}>{choice}</option>)}
           </select>
         ) : <input className="form-control" value={value} onChange={updateValue} />)}
