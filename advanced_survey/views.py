@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.urls import reverse
 from django.shortcuts import render
+from django.core.validators import validate_email
 
 from .models import Survey, Question, Answer
 
@@ -52,8 +53,8 @@ def check_options_url(options, question_id):
 
 def save_survey(request): # pylint: disable=R0912,R0915
     """Save Survey"""
-    # if not request.user.is_authenticated or not request.user.is_superuser:
-    #     return JsonResponse({"data":"Forbidden"}, status=403)
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return JsonResponse({"data":"Forbidden"}, status=403)
 
     if 'id' not in request.GET:
         return JsonResponse({"data":"Empty Survey ID"}, status=406)
@@ -251,14 +252,14 @@ def get_element(question): # pylint: disable=R0912,R0915
                     ext = "."+ext
                 if ext not in accepted_types:
                     accepted_types.append(ext)
-            element["acceptedTypes"] = "|".join(accepted_types)
+            element["acceptedTypes"] = ",".join(accepted_types)
     elif question["field"] == "Image":
         element["type"] = "file"
         if "multiple" in options:
             element["allowMultiple"] = True
         if "max_size" in options:
             element["maxSize"] = int(options["max_size"]) * 1024
-        element["acceptedTypes"] = ".png|.jpg"
+        element["acceptedTypes"] = ".png,.jpg"
     elif question["field"] == "Date":
         element["type"] = "datepicker"
         element["inputType"] = "date"
@@ -302,9 +303,56 @@ def get_surveyjs(request):
 
 def validate(question, answer):
     """Validate answer by given question"""
-    # field_type, options = prepare_question(question)
-    print(question)
-    print(answer)
+    field_type, options = prepare_question(question)
+    if field_type == "Rating":
+        rate_max = len(options['items'])
+        try:
+            answer = int(answer)
+        except:
+            return f"Answer is not valid"
+        if answer < 1 or answer > rate_max:
+            return f"Answer should be 1 and {rate_max}"
+    elif field_type == "TextArea":
+        if "max" in options and options["max"] > 0 and len(answer) >  options["max"]:
+            return f"Answer should be less than {options['max']} characters"
+    elif field_type == 'Select':
+        for op in answer:
+            if op not in options['items']:
+                return f"{op} is not a valid option"
+    elif field_type == "Checkbox":
+        for op in answer:
+            if op not in options['items']:
+                return f"{op} is not a valid option"
+        if 'min' in options:
+            min_count = int(options['min'])
+            if min_count > 0 and len(answer) < min_count:
+                return f"You should select at leaset {min_count} options."
+        if 'max' in options:
+            max_count = int(options['max'])
+            if len(answer) > max_count:
+                return f"You should select {max_count} options maximum."
+    elif field_type == "Radiobox":
+        if answer not in options['items']:
+            return f"{answer} is not a valid option"
+    elif field_type == "Email":
+        try:
+            validate_email(answer)
+        except:
+            return f"{answer} is not a valid email address"
+    elif field_type == "Numeric":
+        try:
+            answer = int(answer)
+        except:
+            return f"Answer is not valid"
+        if 'min' in options:
+            min_value = int(options['min'])
+            if min_value > 0 and answer < min_value:
+                return f"{answer} should be greater than {min_value}"
+        if 'max' in options:
+            max_value = int(options['max'])
+            if max_value > 0 and answer > max_value:
+                return f"{answer} should be less than {min_value}"
+
     return True
 
 def save_answer(request): # pylint: disable=R0912
@@ -338,7 +386,14 @@ def save_answer(request): # pylint: disable=R0912
                 qid = question.replace("question", "")
                 answers[qid] = answer
 
+    page_index = -1
+    if 'page' in request.POST:
+        page_index = request.POST['page'].replace("page", "")
+        page_index = int(page_index) - 1
+
     for question in survey.question_set.all():
+        if page_index > -1 and question.page != page_index:
+            continue
         qid = str(question.id)
         if qid not in answers:
             answer = None
@@ -346,7 +401,10 @@ def save_answer(request): # pylint: disable=R0912
             answer = answers[qid]
         is_valid = validate(question, answer)
         if isinstance(is_valid, str):
-            return JsonResponse({"data": is_valid}, status=406)
+            return JsonResponse({f"question{question.id}": is_valid}, status=406)
+
+    if page_index > -1:
+        return JsonResponse({"validation": "passed"})
 
     session_id = str(uuid.uuid4())
     for question_id, answer in answers.items():
