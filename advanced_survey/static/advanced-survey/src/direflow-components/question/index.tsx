@@ -11,7 +11,6 @@ type Props = {
 
 const Question: React.FC<Props> = ({index, question}) => {
   const {dispatch} = useContext(StateContext);
-
   return (
     <div
       className="card my-2 bg-light"
@@ -41,7 +40,7 @@ const Question: React.FC<Props> = ({index, question}) => {
               id: index,
               question: {...question, question: e.target.value}
             }})
-          }}>{question.question}</textarea>
+          }} value={question.question} />
         </div>
         <div className="form-group mb-2">
           <label>Description:</label>
@@ -50,7 +49,7 @@ const Question: React.FC<Props> = ({index, question}) => {
               id: index,
               question: {...question, description: e.target.value}
             }})
-          }}>{question.description}</textarea>
+          }} value={question.description} />
         </div>
         <FieldSelector key={question.id} question={question} index={index} />
         <VisibleIf questionIdx={index}/>
