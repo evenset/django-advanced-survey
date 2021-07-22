@@ -303,6 +303,8 @@ def get_surveyjs(request):
 def validate(question, answer):
     """Validate answer by given question"""
     # field_type, options = prepare_question(question)
+    print(question)
+    print(answer)
     return True
 
 def save_answer(request): # pylint: disable=R0912
