@@ -18,7 +18,7 @@ const App: FC = (props: any) => {
     setLoading(true);
     axios({
       method: 'GET',
-      url: `http://127.0.0.1:8000${props.save_url}?id=${props.id}`
+      url: `${props.save_url}?id=${props.id}`
     }).then(({data}) => {
       dispatch({type: "setPages", payload: data})
     }).catch(err => {
