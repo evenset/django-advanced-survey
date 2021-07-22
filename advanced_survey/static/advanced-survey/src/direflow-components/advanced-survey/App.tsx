@@ -13,6 +13,7 @@ const App: FC = (props: any) => {
   const [saveError, setSaveError] = useState<string>('');
 
   const loadData = () => {
+    if (props.id == 0) return;
     setError('');
     setLoading(true);
     axios({
