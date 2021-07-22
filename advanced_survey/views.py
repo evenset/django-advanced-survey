@@ -26,12 +26,10 @@ def serialize_question(question):
 
 def prepare_question(question):
     """Get question information for validation"""
-    return {
-        "id": question.id,
-        "field": question.field_type,
-        "options": {} if question.options is None \
-                    else json.loads(question.options)
-    }
+    return (
+        question.field_type,
+        {} if question.options is None else json.loads(question.options)
+    )
 
 def check_options_url(options, question_id):
     """Validate url in options"""
@@ -304,9 +302,7 @@ def get_surveyjs(request):
 
 def validate(question, answer):
     """Validate answer by given question"""
-    print(answer)
-    question = prepare_question(question)
-    # to do : validate answer
+    # field_type, options = prepare_question(question)
     return True
 
 def save_answer(request): # pylint: disable=R0912
