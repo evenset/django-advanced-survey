@@ -11,7 +11,7 @@ type InnerProps = Props & {
 const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
   const questionIdx = props.questionIdx
   const required = props.requiredSelector
-  const questionProperty = required ? 'requiredIf' : 'visibleIf'
+  const questionProperty = required ? 'is_required' : 'is_visible'
   const { state, dispatch } = useContext(StateContext)
   const page = state.pages[state.activePage - 1]
   const previousQuestions: typeof page = []
