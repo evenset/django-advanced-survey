@@ -47,6 +47,10 @@ def check_options_url(options, question_id):
     return response
 
 def parse_external_reference(conditions, id_lookup, allow_never):
+    """
+    convert an array of strings into a pipe-separated string,
+    or throw an error if the array is invalid
+    """
     token_count = len(conditions)
     if token_count == 1:
         allowed = ['always', 'never'] if allow_never else ['always']
@@ -69,7 +73,8 @@ def parse_external_reference(conditions, id_lookup, allow_never):
             raise RuntimeError(str(conditions[2]) + ' is not a valid terminal condition')
     if token_count == 4:
         if conditions[2] != 'isAnsweredWith':
-            raise RuntimeError(str(conditions[2]) + ' is not a valid connecting condition between a question and answer')
+            raise RuntimeError(
+                str(conditions[2]) + ' is not a valid condition between a question and answer')
     if token_count >= 5:
         raise RuntimeError('only 4 or fewer items are supported')
 
@@ -124,11 +129,11 @@ def save_survey(request): # pylint: disable=R0912,R0915
                             if isinstance(response, str):
                                 raise RuntimeError(response)
                         db_question.options = json.dumps(options)
-                    
-                    
 
-                    db_question.is_visible = parse_external_reference(question["is_visible"], id_lookup, False)
-                    db_question.is_required = parse_external_reference(question["is_required"], id_lookup, True)
+                    db_question.is_visible = parse_external_reference(question["is_visible"],
+                                                                      id_lookup, False)
+                    db_question.is_required = parse_external_reference(question["is_required"],
+                                                                       id_lookup, True)
 
                     id_lookup[question["id"]] = db_question.pk
                 except Exception as err: # pylint: disable=W0703
