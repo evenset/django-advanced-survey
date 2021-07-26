@@ -5,9 +5,8 @@ from django.core.validators import validate_email
 
 def get_field(question):
     """Get related field class"""
-    class_name = getattr(sys.modules[__name__], question['field'])
-    field = class_name(question)
-    return field
+    class_ = getattr(sys.modules[__name__], question['field'])
+    return class_(question)
 
 class Field:
     """Field base class"""
