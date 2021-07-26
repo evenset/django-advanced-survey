@@ -45,8 +45,8 @@
                 },
                 success: options.complete,
                 error: xhr => {
-                    console.log(xhr.responseText)
-                    // SET options.errors
+                    options.errors = JSON.parse(xhr.responseText)
+                    options.complete();
                 }
             })
         }

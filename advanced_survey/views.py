@@ -4,6 +4,7 @@ import re
 import uuid
 import urllib.request
 from datetime import datetime
+from django.core.exceptions import ValidationError
 
 from django.http import JsonResponse
 from django.db.models import Q
@@ -11,6 +12,7 @@ from django.urls import reverse
 from django.shortcuts import render
 
 from .models import Survey, Question, Answer
+from .fields import get_field
 
 def serialize_question(question):
     """Serialize Question"""
@@ -25,13 +27,6 @@ def serialize_question(question):
         "is_visible": question.is_visible.split("|"),
         "is_required": question.is_required.split("|")
     }
-
-def prepare_question(question):
-    """Get question information for validation"""
-    return (
-        question.field_type,
-        {} if question.options is None else json.loads(question.options)
-    )
 
 def check_options_url(options, question_id):
     """Validate url in options"""
@@ -82,8 +77,8 @@ def parse_external_reference(conditions, id_lookup, allow_never):
 
 def save_survey(request): # pylint: disable=R0912,R0915
     """Save Survey"""
-    # if not request.user.is_authenticated or not request.user.is_superuser:
-    #     return JsonResponse({"data":"Forbidden"}, status=403)
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return JsonResponse({"data":"Forbidden"}, status=403)
 
     if 'id' not in request.GET:
         return JsonResponse({"data":"Empty Survey ID"}, status=406)
@@ -199,114 +194,6 @@ def get_survey(request): # pylint: disable=R0912
 
     return JsonResponse(result, safe=False)
 
-def get_element(question): # pylint: disable=R0912,R0915
-    """Get surveyjs element"""
-    options = question['options']
-
-    element = {
-        "name": f"question{question['id']}",
-        "title": question['question'],
-        "description": question['description'],
-    }
-
-    if question['field'] == "Rating":
-        element["type"] = "rating"
-        element['rateMax'] = len(options['items'])
-        item_counter = 0
-        rate_values = []
-        for item in options['items']:
-            item_counter += 1
-            rate_values.append({
-                "value": item_counter,
-                "text": item
-            })
-        element['rateValues'] = rate_values
-    elif question['field'] == "TextArea":
-        element["type"] = "comment"
-        if "max" in options and options["max"] > 0:
-            element["maxLength"] = options["max"]
-    elif question['field'] == 'Select':
-        element["type"] = "dropdown"
-        element["choices"] = options['items']
-    elif question['field'] == "Checkbox":
-        element["type"] = "checkbox"
-        element["choices"] = options['items']
-        min_count = 0
-        max_count = 0
-        if 'min' in options:
-            min_count = int(options['min'])
-        if 'max' in options:
-            max_count = int(options['max'])
-        if min_count > 0 or max_count > 0:
-            validator = {"type": "answercount"}
-            if min_count > 0:
-                validator["minCount"] = min_count
-            if max_count > 0:
-                validator["maxCount"] = max_count
-            element["validators"] = [validator]
-    elif question['field'] == "Radiobox":
-        element["type"] = "radiogroup"
-        element["choices"] = options['items']
-    elif question["field"] == "Email":
-        element["type"] = "text"
-        element["inputType"] = "email"
-        element["validators"] = [{"type":"email"}]
-    elif question["field"] == "URL":
-        element["type"] = "text"
-        element["inputType"] = "url"
-    elif question["field"] == "Phone":
-        element["type"] = "text"
-        element["inputType"] = "phone"
-    elif question["field"] == "Boolean":
-        element["type"] = "boolean"
-    elif question["field"] == "Numeric":
-        element["type"] = "text"
-        element["inputType"] = "numeric"
-        min_value = 0
-        max_value = 0
-        if 'min' in options:
-            min_value = int(options['min'])
-        if 'max' in options:
-            max_value = int(options['max'])
-        if min_value > 0 or max_value > 0:
-            validator = {"type": "numeric"}
-            if min_value > 0:
-                validator["minValue"] = min_value
-            if max_value > 0:
-                validator["maxValue"] = max_value
-            element["validators"] = [validator]
-    elif question["field"] == "File":
-        element["type"] = "file"
-        if "multiple" in options:
-            element["allowMultiple"] = True
-        if "max_size" in options:
-            element["maxSize"] = int(options["max_size"]) * 1024
-        if "items" in options:
-            accepted_types = []
-            for ext in options["items"]:
-                if ext[0] != ".":
-                    ext = "."+ext
-                if ext not in accepted_types:
-                    accepted_types.append(ext)
-            element["acceptedTypes"] = "|".join(accepted_types)
-    elif question["field"] == "Image":
-        element["type"] = "file"
-        if "multiple" in options:
-            element["allowMultiple"] = True
-        if "max_size" in options:
-            element["maxSize"] = int(options["max_size"]) * 1024
-        element["acceptedTypes"] = ".png|.jpg"
-    elif question["field"] == "Date":
-        element["type"] = "datepicker"
-        element["inputType"] = "date"
-    elif question["field"] == "Time":
-        element["type"] = "timepicker"
-        element["inputType"] = "time"
-    else:
-        element["type"] = "text"
-
-    return element
-
 def get_surveyjs(request):
     """Get Surveyjs format by id"""
     if 'id' not in request.GET:
@@ -328,7 +215,7 @@ def get_surveyjs(request):
     for page in pages:
         elements = []
         for question in page:
-            elements.append(get_element(question))
+            elements.append(get_field(question).element)
         page_counter += 1
         surveyjs["pages"].append({
             "name": f"page{page_counter}",
@@ -337,14 +224,7 @@ def get_surveyjs(request):
 
     return JsonResponse(surveyjs)
 
-def validate(question, answer):
-    """Validate answer by given question"""
-    # field_type, options = prepare_question(question)
-    print(question)
-    print(answer)
-    return True
-
-def save_answer(request): # pylint: disable=R0912
+def save_answer(request): # pylint: disable=R0912,R0914
     """Save answer"""
     if 'id' not in request.POST:
         return JsonResponse({"data":"Empty Survey ID"}, status=406)
@@ -375,15 +255,28 @@ def save_answer(request): # pylint: disable=R0912
                 qid = question.replace("question", "")
                 answers[qid] = answer
 
+    page_index = -1
+    if 'page' in request.POST:
+        page_index = request.POST['page'].replace("page", "")
+        page_index = int(page_index) - 1
+
     for question in survey.question_set.all():
+        if page_index > -1 and question.page != page_index:
+            continue
         qid = str(question.id)
         if qid not in answers:
             answer = None
         else:
             answer = answers[qid]
-        is_valid = validate(question, answer)
-        if isinstance(is_valid, str):
-            return JsonResponse({"data": is_valid}, status=406)
+
+        try:
+            field = get_field(serialize_question(question))
+            field.validate(answer)
+        except (ValueError, ValidationError) as err:
+            return JsonResponse({f"question{question.id}": str(err)}, status=406)
+
+    if page_index > -1:
+        return JsonResponse({"validation": "passed"})
 
     session_id = str(uuid.uuid4())
     for question_id, answer in answers.items():
@@ -412,7 +305,7 @@ def example(request):
     for page in pages:
         elements = []
         for question in page:
-            elements.append(get_element(question))
+            elements.append(get_field(question).element)
         page_counter += 1
         surveyjs["pages"].append({
             "name": f"page{page_counter}",
