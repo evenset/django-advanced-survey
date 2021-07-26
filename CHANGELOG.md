@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.1-dev-19-feature/feature/DHP-27-answer-validation
+- Answer validation added
+
 ## 0.0.1-dev-19-feature/feature/DHP-26-save-answer
 - Save answer to the db added
 
