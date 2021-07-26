@@ -51,10 +51,10 @@ def check_options_url(options, question_id):
             return f"Couldn't get options for question {question_id}"
     return response
 
-def parse_external_reference(conditions, id_lookup, allowNever):
+def parse_external_reference(conditions, id_lookup, allow_never):
     token_count = len(conditions)
     if token_count == 1:
-        allowed = ['always', 'never'] if allowNever else ['always']
+        allowed = ['always', 'never'] if allow_never else ['always']
         if conditions[0] not in allowed:
             raise RuntimeError(str(conditions[0]) + ' is not a valid standalone condition')
     elif conditions[0] not in ['if', 'unless']:
@@ -135,9 +135,7 @@ def save_survey(request): # pylint: disable=R0912,R0915
                     db_question.is_visible = parse_external_reference(question["is_visible"], id_lookup, False)
                     db_question.is_required = parse_external_reference(question["is_required"], id_lookup, True)
 
-                    temp_id = question["id"]
-                    db_question.save()
-                    id_lookup[temp_id] = db_question.pk
+                    id_lookup[question["id"]] = db_question.pk
                 except Exception as err: # pylint: disable=W0703
                     return JsonResponse({"data":str(err)}, status=500)
 
