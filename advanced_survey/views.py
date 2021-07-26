@@ -51,6 +51,34 @@ def check_options_url(options, question_id):
             return f"Couldn't get options for question {question_id}"
     return response
 
+def parse_external_reference(conditions, id_lookup, allowNever):
+    token_count = len(conditions)
+    if token_count == 1:
+        allowed = ['always', 'never'] if allowNever else ['always']
+        if conditions[0] not in allowed:
+            raise RuntimeError(str(conditions[0]) + ' is not a valid standalone condition')
+    elif conditions[0] not in ['if', 'unless']:
+        raise RuntimeError(str(conditions[0]) + ' is not a valid opening condition')
+
+    if token_count == 2:
+        raise RuntimeError('Exactly two list items is not a valid condition')
+
+    if token_count > 2:
+        # must have a valid reference to a prior question
+        other_id = conditions[1]
+        if other_id not in id_lookup:
+            raise RuntimeError(other_id + ' does not refer to a prior question')
+        conditions[1] = str(id_lookup[other_id])
+    if token_count == 3:
+        if conditions[2] != 'isAnswered':
+            raise RuntimeError(str(conditions[2]) + ' is not a valid terminal condition')
+    if token_count == 4:
+        if conditions[2] != 'isAnsweredWith':
+            raise RuntimeError(str(conditions[2]) + ' is not a valid connecting condition between a question and answer')
+    if token_count >= 5:
+        raise RuntimeError('only 4 or fewer items are supported')
+
+    return "|".join(conditions)
 
 def save_survey(request): # pylint: disable=R0912,R0915
     """Save Survey"""
@@ -102,38 +130,13 @@ def save_survey(request): # pylint: disable=R0912,R0915
                                 raise RuntimeError(response)
                         db_question.options = json.dumps(options)
                     
-                    is_visible = question['is_visible'] or ['always']
-                    token_count = len(is_visible)
-                    if token_count == 1:
-                        if is_visible[0] != 'always':
-                            raise RuntimeError(str(is_visible[0]) + ' is not a valid standalone condition')
-                    elif is_visible[0] not in ['if', 'unless']:
-                        raise RuntimeError(str(is_visible[0]) + ' is not a valid opening condition')
-
-                    if token_count == 2:
-                        raise RuntimeError('Exactly two list items is not a valid is_visible condition')
-
-                    if token_count > 2:
-                        # must have a valid reference to a prior question
-                        other_id = is_visible[1]
-                        if other_id not in id_lookup:
-                            raise RuntimeError(other_id + ' does not refer to a prior question')
-                        is_visible[1] = str(id_lookup[other_id])
-                    if token_count == 3:
-                        if is_visible[2] != 'isAnswered':
-                            raise RuntimeError(str(is_visible[2]) + ' is not a valid terminal condition')
-                    if token_count == 4:
-                        if is_visible[2] != 'isAnsweredWith':
-                            raise RuntimeError(str(is_visible[2]) + ' is not a valid connecting condition between a question and answer')
-                    if token_count >= 5:
-                        raise RuntimeError('only 4 or fewer items are supported')
-
-                    db_question.is_visible = '|'.join(is_visible)
-                    # FIXME
-                    db_question.is_required = '|'.join(is_visible)
                     
+
+                    db_question.is_visible = parse_external_reference(question["is_visible"], id_lookup, False)
+                    db_question.is_required = parse_external_reference(question["is_required"], id_lookup, True)
+
                     temp_id = question["id"]
-                    created = db_question.save()
+                    db_question.save()
                     id_lookup[temp_id] = db_question.pk
                 except Exception as err: # pylint: disable=W0703
                     return JsonResponse({"data":str(err)}, status=500)
