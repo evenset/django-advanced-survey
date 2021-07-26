@@ -1,7 +1,11 @@
 # Changelog
 
-## 0.0.1-dev-20-hotfix/previous-selection-patch
-- Standardize on int question ids
+## 0.0.1-dev-21-hotfix/previous-selection-patch
+- Handle both id types in creation and editing
+- save references properly
+
+## 0.0.1-dev-20-feature/DHP-27-answer-validation
+- Answer validation added
 
 ## 0.0.1-dev-19-feature/DHP-26-save-answer
 - Save answer to the db added
