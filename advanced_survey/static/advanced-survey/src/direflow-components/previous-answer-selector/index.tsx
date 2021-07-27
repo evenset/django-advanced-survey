@@ -11,7 +11,7 @@ type InnerProps = Props & {
 const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
   const questionIdx = props.questionIdx
   const required = props.requiredSelector
-  const questionProperty = required ? 'requiredIf' : 'visibleIf'
+  const questionProperty = required ? 'is_required' : 'is_visible'
   const { state, dispatch } = useContext(StateContext)
   const page = state.pages[state.activePage - 1]
   const previousQuestions: typeof page = []
@@ -29,18 +29,19 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
     throw Error('Selected a nonexistent or deleted question')
   }
 
-  const update = useCallback((externalConditions: string[]) => {
+  const update = useCallback((externalConditions: (string | number | undefined)[]) => {
     return dispatch({
       type: 'updateQuestion',
       payload: {
         id: questionIdx,
-        question: { ...selectedQuestion, [questionProperty]: externalConditions.filter(e => typeof e === 'string') }
+        question: { ...selectedQuestion, [questionProperty]: externalConditions.filter(e => ['string', 'number'].includes(typeof e)) }
       }
     });
   }, [questionIdx, selectedQuestion, dispatch, questionProperty])
 
-  const [conditionType, otherQuestionId, condition, value] = selectedQuestion[questionProperty] ? selectedQuestion[questionProperty] : [];
-  const otherQuestion = previousQuestions.find(q => q.id === otherQuestionId) || null
+  const [conditionType, otherQuestionIdRaw, condition, value] = selectedQuestion[questionProperty] ? selectedQuestion[questionProperty] : [];
+  const otherQuestion = previousQuestions.find(q => String(q.id) === String(otherQuestionIdRaw)) || null
+  const otherQuestionId = otherQuestion?.id
   const [updateConditionType, updateOtherQuestion, updateCondition, updateValue] = [
     useCallback(
       (evt: { target: { value: string } }) => {
@@ -69,20 +70,20 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
       [conditionType, otherQuestionId, condition, update]
     ),
   ]
-  const otherQuestionFound = !!otherQuestion?.id
+  const otherQuestionFound = !!otherQuestion
   useEffect(() => {
-    if (!otherQuestionId) return
+    if (!otherQuestionIdRaw) return
     if (otherQuestionFound) return
     console.warn('Resetting the visible criteria as previous question no longer exists')
     update(['always'])
-  }, [update, otherQuestionId, otherQuestionFound])
+  }, [update, otherQuestionIdRaw, otherQuestionFound])
 
   const previousChoices = otherQuestion?.option?.items
   useEffect(() => {
     if (!value) return
     if (!previousChoices) return
     if (!previousChoices.length) return
-    if (previousChoices.includes(value)) return
+    if (previousChoices.includes(String(value))) return
     console.warn('Resetting the response criteria as previous choice no longer exists')
     update([conditionType, otherQuestionId, condition])
   }, [
@@ -106,15 +107,15 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
         </select>
       </div>
       <div className="col-auto">
-        {(!['always', 'never'].includes(conditionType)) && <select className="form-control" value={otherQuestionId} onChange={updateOtherQuestion}>
-          {!otherQuestionId && <option value="">Select a question...</option>}
+        {(!['always', 'never'].includes(String(conditionType))) && <select className="form-control" value={otherQuestionId} onChange={updateOtherQuestion}>
+          {!otherQuestion && <option value="">Select a question...</option>}
           {
             previousQuestions.map(q => <option key={q.id} value={q.id}>{q.question}</option>)
           }
         </select>}
       </div>
       <div className="col-auto">
-        {(!!otherQuestionId) && <select className="form-control" value={condition} onChange={updateCondition}>
+        {(!!otherQuestion) && <select className="form-control" value={condition} onChange={updateCondition}>
           <option value="isAnswered">is answered</option>
           <option value="isAnsweredWith">is answered with</option>
         </select>}
@@ -122,7 +123,7 @@ const VisibleOrRequired: React.FC<InnerProps> = (props: InnerProps) => {
       <div className="col-auto">
         {condition === 'isAnsweredWith' && (previousChoices?.length ? (
           <select className="form-control" value={value} onChange={updateValue}>
-            {(!value || !previousChoices.includes(value)) && <option value={undefined}>Select a response...</option>}
+            {(!value || !previousChoices.includes(String(value))) && <option value={undefined}>Select a response...</option>}
             {previousChoices.map(choice => <option key={choice} value={choice}>{choice}</option>)}
           </select>
         ) : <input className="form-control" value={value} onChange={updateValue} />)}

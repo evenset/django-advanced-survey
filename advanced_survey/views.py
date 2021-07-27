@@ -23,7 +23,9 @@ def serialize_question(question):
         "description": question.description,
         "field": question.field_type,
         "options": {} if question.options is None \
-                    else json.loads(question.options)
+                    else json.loads(question.options),
+        "is_visible": question.is_visible.split("|"),
+        "is_required": question.is_required.split("|")
     }
 
 def check_options_url(options, question_id):
@@ -44,6 +46,39 @@ def check_options_url(options, question_id):
             return f"Couldn't get options for question {question_id}"
     return response
 
+def parse_external_reference(conditions, id_lookup, allow_never):
+    """
+    convert an array of strings into a pipe-separated string,
+    or throw an error if the array is invalid
+    """
+    token_count = len(conditions)
+    if token_count == 1:
+        allowed = ['always', 'never'] if allow_never else ['always']
+        if conditions[0] not in allowed:
+            raise RuntimeError(str(conditions[0]) + ' is not a valid standalone condition')
+    elif conditions[0] not in ['if', 'unless']:
+        raise RuntimeError(str(conditions[0]) + ' is not a valid opening condition')
+
+    if token_count == 2:
+        raise RuntimeError('Exactly two list items is not a valid condition')
+
+    if token_count > 2:
+        # must have a valid reference to a prior question
+        other_id = conditions[1]
+        if other_id not in id_lookup:
+            raise RuntimeError(other_id + ' does not refer to a prior question')
+        conditions[1] = str(id_lookup[other_id])
+    if token_count == 3:
+        if conditions[2] != 'isAnswered':
+            raise RuntimeError(str(conditions[2]) + ' is not a valid terminal condition')
+    if token_count == 4:
+        if conditions[2] != 'isAnsweredWith':
+            raise RuntimeError(
+                str(conditions[2]) + ' is not a valid condition between a question and answer')
+    if token_count >= 5:
+        raise RuntimeError('only 4 or fewer items are supported')
+
+    return "|".join(conditions)
 
 def save_survey(request): # pylint: disable=R0912,R0915
     """Save Survey"""
@@ -62,8 +97,8 @@ def save_survey(request): # pylint: disable=R0912,R0915
         pages = json.loads(request.body)
         page_counter = 0
         for page in pages:
+            id_lookup = dict()
             for question in page:
-
                 db_question = Question()
                 if str(question['id']).isnumeric():
                     db_question = Question.objects.filter(id=question['id'], survey=survey).first()
@@ -75,6 +110,7 @@ def save_survey(request): # pylint: disable=R0912,R0915
                     if 'delete' in question:
                         db_question.delete()
                         continue
+                    id_lookup[str(question['id'])] = question['id']
 
                 try:
                     db_question.survey = survey
@@ -93,7 +129,14 @@ def save_survey(request): # pylint: disable=R0912,R0915
                             if isinstance(response, str):
                                 raise RuntimeError(response)
                         db_question.options = json.dumps(options)
+
+                    db_question.is_visible = parse_external_reference(question["is_visible"],
+                                                                      id_lookup, False)
+                    db_question.is_required = parse_external_reference(question["is_required"],
+                                                                       id_lookup, True)
+
                     db_question.save()
+                    id_lookup[question["id"]] = db_question.pk
                 except Exception as err: # pylint: disable=W0703
                     return JsonResponse({"data":str(err)}, status=500)
 
