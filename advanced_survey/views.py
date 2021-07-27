@@ -135,6 +135,7 @@ def save_survey(request): # pylint: disable=R0912,R0915
                     db_question.is_required = parse_external_reference(question["is_required"],
                                                                        id_lookup, True)
 
+                    db_question.save()
                     id_lookup[question["id"]] = db_question.pk
                 except Exception as err: # pylint: disable=W0703
                     return JsonResponse({"data":str(err)}, status=500)
